@@ -1,0 +1,36 @@
+    version 9.8.0
+    min version 9.8.0
+    number of documents 208
+    uses compound file false
+    diagnostics 10
+      key mergeMaxNumSegments
+      value -1
+      key timestamp
+      value 1697639004824
+      key os.version
+      value 10.0
+      key java.vendor
+      value Oracle Corporation
+      key os
+      value Windows 10
+      key mergeFactor
+      value 10
+      key java.runtime.version
+      value 15.0.2+7-27
+      key os.arch
+      value amd64
+      key source
+      value merge
+      key lucene.version
+      value 9.8.0
+    attributes 0
+    files 5
+      file _pu.fld
+      file _pu.pst
+      file _pu.inf
+      file _pu.si
+      file _pu.len
+    id ©ÙúedÄc5Š=JL\
+
+    sort 0
+checksum 00000000001617680165

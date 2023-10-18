@@ -1,0 +1,35 @@
+    version 9.8.0
+    min version 9.8.0
+    number of documents 136
+    uses compound file false
+    diagnostics 10
+      key os.arch
+      value amd64
+      key source
+      value merge
+      key lucene.version
+      value 9.8.0
+      key mergeMaxNumSegments
+      value -1
+      key timestamp
+      value 1697638905233
+      key os.version
+      value 10.0
+      key java.vendor
+      value Oracle Corporation
+      key os
+      value Windows 10
+      key mergeFactor
+      value 10
+      key java.runtime.version
+      value 15.0.2+7-27
+    attributes 0
+    files 5
+      file _c3.len
+      file _c3.si
+      file _c3.inf
+      file _c3.pst
+      file _c3.fld
+    id ßÃ?ÚXS¾£ŸÊ‘A‚”0
+    sort 0
+checksum 00000000002370470054
