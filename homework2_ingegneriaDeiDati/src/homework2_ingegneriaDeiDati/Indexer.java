@@ -46,6 +46,7 @@ public class Indexer {
 	        IndexWriter writer = new IndexWriter(indexDirectory, config);
 	        
 	        File docsDirectory = new File(docsPath);
+	        
 	        File[] files = docsDirectory.listFiles();
 	        
 	        for (File f : files ) {
