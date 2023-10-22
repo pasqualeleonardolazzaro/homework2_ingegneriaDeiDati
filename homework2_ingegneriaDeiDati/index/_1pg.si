@@ -1,0 +1,28 @@
+    version 9.8.0
+    min version 9.8.0
+    number of documents 1
+    uses compound file true
+    diagnostics 8
+      key os.arch
+      value amd64
+      key os.version
+      value 10.0
+      key lucene.version
+      value 9.8.0
+      key source
+      value flush
+      key timestamp
+      value 1697979376626
+      key java.runtime.version
+      value 15.0.2+7-27
+      key java.vendor
+      value Oracle Corporation
+      key os
+      value Windows 10
+    attributes 0
+    files 2
+      file _1pg.scf
+      file _1pg.si
+    id aÔÄyñh@”ÒÒð‘YÓ_
+    sort 0
+checksum 00000000000239548338
