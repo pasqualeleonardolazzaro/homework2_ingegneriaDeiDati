@@ -44,6 +44,7 @@ public class Indexer {
 	        config.setCodec(new SimpleTextCodec());
 	        
 	        IndexWriter writer = new IndexWriter(indexDirectory, config);
+	        writer.deleteAll();
 	        
 	        File docsDirectory = new File(docsPath);
 	        
@@ -80,5 +81,6 @@ public class Indexer {
             }
 	        
 	        writer.close();
+	        indexDirectory.close();
 	    }
 }
