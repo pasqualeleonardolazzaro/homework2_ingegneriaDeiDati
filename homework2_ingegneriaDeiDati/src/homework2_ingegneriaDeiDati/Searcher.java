@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.IndexReader;
@@ -77,7 +78,7 @@ public class Searcher {
 			}
 			
 			else {
-				QueryParser parser = new QueryParser(field, new EnglishAnalyzer());
+				QueryParser parser = new QueryParser(field, new StandardAnalyzer());
 				Query parsedQuery = null;
 				try {
 					parsedQuery = parser.parse(query);
