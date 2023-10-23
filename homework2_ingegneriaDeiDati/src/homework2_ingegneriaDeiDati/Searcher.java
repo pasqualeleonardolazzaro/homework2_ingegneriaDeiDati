@@ -5,12 +5,17 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Scanner;
 
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
@@ -46,11 +51,20 @@ public class Searcher {
 			System.out.println("Inserisci il testo della query ora:");
 			// Leggi il testo della query da console
 			query = scanner.nextLine();
+			
+			TopDocs topDocs = null;
+			//se ci sono le virgolette fai una frase query
+			if(query.startsWith("\"") && query.endsWith("\"")) {
+				
+			String querySenzaPrimoCarattere = query.substring(1);
+
+	        // Rimuovi l'ultimo carattere
+	        String querySenzaUltimoCarattere = querySenzaPrimoCarattere.substring(0, querySenzaPrimoCarattere.length() - 1);
 
 			PhraseQuery.Builder builder = new PhraseQuery.Builder();
 
 			// Dividi la stringa in parole utilizzando uno o più spazi come delimitatori
-			String[] parole = query.split("\\s+");
+			String[] parole = querySenzaUltimoCarattere.split("\\s+");
 
 			// costruisci la query
 			for (String parola : parole) {
@@ -59,7 +73,20 @@ public class Searcher {
 
 			PhraseQuery phraseQuery = builder.build();
 			// Esegui la query
-			TopDocs topDocs = searcher.search(phraseQuery, 10); // Cerca i primi 10 documenti corrispondenti
+			topDocs = searcher.search(phraseQuery, 10); // Cerca i primi 10 documenti corrispondenti
+			}
+			
+			else {
+				QueryParser parser = new QueryParser(field, new EnglishAnalyzer());
+				Query parsedQuery = null;
+				try {
+					parsedQuery = parser.parse(query);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				topDocs = searcher.search(parsedQuery, 10); // Cerca i primi 10 documenti corrispondenti
+			}
 			if(topDocs.scoreDocs.length == 0) {
 				System.out.println("Nessun risultato");
 			}
