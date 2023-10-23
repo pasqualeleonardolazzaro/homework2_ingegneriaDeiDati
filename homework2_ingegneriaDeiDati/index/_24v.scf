@@ -1,0 +1,7543 @@
+cfs entry for: _24v.fld
+doc 0
+  field 0
+    name name
+    type string
+    value rfc8495.txt
+  field 1
+    name content
+    type string
+    value \
+\
+\
+\
+\
+\
+internet engineering task force (ietf)                          j. gould\
+request for comments: 8495                                verisign, inc.\
+category: standards track                                       k. feher\
+issn: 2070-1721                                                  neustar\
+                                                           november 2018\
+\
+\
+                       allocation token extension\
+             for the extensible provisioning protocol (epp)\
+\
+abstract\
+\
+   this document describes an extensible provisioning protocol (epp)\
+   extension for including an allocation token in "query" and\
+   "transform" commands.  the allocation token is used as a credential\
+   that authorizes a client to request the allocation of a specific\
+   object from the server using one of the epp transform commands,\
+   including "create" and "transfer".\
+\
+status of this memo\
+\
+   this is an internet standards track document.\
+\
+   this document is a product of the internet engineering task force\
+   (ietf).  it represents the consensus of the ietf community.  it has\
+   received public review and has been approved for publication by the\
+   internet engineering steering group (iesg).  further information on\
+   internet standards is available in section 2 of rfc 7841.\
+\
+   information about the current status of this document, any errata,\
+   and how to provide feedback on it may be obtained at\
+   https://www.rfc-editor.org/info/rfc8495.\
+\
+copyright notice\
+\
+   copyright (c) 2018 ietf trust and the persons identified as the\
+   document authors.  all rights reserved.\
+\
+   this document is subject to bcp 78 and the ietf trust's legal\
+   provisions relating to ietf documents\
+   (https://trustee.ietf.org/license-info) in effect on the date of\
+   publication of this document.  please review these documents\
+   carefully, as they describe your rights and restrictions with respect\
+   to this document.  code components extracted from this document must\
+   include simplified bsd license text as described in section 4.e of\
+   the trust legal provisions and are provided without warranty as\
+   described in the simplified bsd license.\
+\
+\
+\
+\
+gould & feher                standards track                    [page 1]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+table of contents\
+\
+   1.  introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2\
+     1.1.  conventions used in this document . . . . . . . . . . . .   3\
+   2.  object attributes . . . . . . . . . . . . . . . . . . . . . .   3\
+     2.1.  allocation token  . . . . . . . . . . . . . . . . . . . .   4\
+   3.  epp command mapping . . . . . . . . . . . . . . . . . . . . .   4\
+     3.1.  epp query commands  . . . . . . . . . . . . . . . . . . .   4\
+       3.1.1.  epp <check> command . . . . . . . . . . . . . . . . .   4\
+       3.1.2.  epp <info> command  . . . . . . . . . . . . . . . . .   8\
+       3.1.3.  epp <transfer> query command  . . . . . . . . . . . .  10\
+     3.2.  epp transform commands  . . . . . . . . . . . . . . . . .  11\
+       3.2.1.  epp <create> command  . . . . . . . . . . . . . . . .  11\
+       3.2.2.  epp <delete> command  . . . . . . . . . . . . . . . .  12\
+       3.2.3.  epp <renew> command . . . . . . . . . . . . . . . . .  12\
+       3.2.4.  epp <transfer> command  . . . . . . . . . . . . . . .  12\
+       3.2.5.  epp <update> command  . . . . . . . . . . . . . . . .  13\
+   4.  formal syntax . . . . . . . . . . . . . . . . . . . . . . . .  14\
+     4.1.  allocation token extension schema . . . . . . . . . . . .  14\
+   5.  iana considerations . . . . . . . . . . . . . . . . . . . . .  15\
+     5.1.  xml namespace . . . . . . . . . . . . . . . . . . . . . .  15\
+     5.2.  epp extension registry  . . . . . . . . . . . . . . . . .  15\
+   6.  security considerations . . . . . . . . . . . . . . . . . . .  15\
+   7.  references  . . . . . . . . . . . . . . . . . . . . . . . . .  16\
+     7.1.  normative references  . . . . . . . . . . . . . . . . . .  16\
+     7.2.  informative references  . . . . . . . . . . . . . . . . .  17\
+   acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  17\
+   authors' addresses  . . . . . . . . . . . . . . . . . . . . . . .  17\
+\
+1.  introduction\
+\
+   this document describes an extension mapping for version 1.0 of the\
+   extensible provisioning protocol (epp) [rfc5730].  this mapping,\
+   which is an extension to epp object mappings similar to the epp\
+   domain name mapping [rfc5731], supports passing an allocation token\
+   as a credential that authorizes a client to request the allocation of\
+   a specific object from the server using one of the epp transform\
+   commands, including "create" and "transfer".\
+\
+   allocation is when a server assigns the sponsoring client of an\
+   object based on the use of an allocation token credential.  examples\
+   include allocating a registration based on a pre-eligibility\
+   allocation token, allocating a premium domain name registration based\
+   on an auction allocation token, allocating a registration based on a\
+   founders allocation token, and allocating an existing domain name\
+   held by the server or by a different sponsoring client based on an\
+   allocation token that is passed with a transfer command.\
+\
+\
+\
+\
+gould & feher                standards track                    [page 2]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+   clients pass an allocation token to the server for validation, and\
+   the server determines if the supplied allocation token is one\
+   supported by the server.  it is up to server policy which epp\
+   transform commands and which objects require the allocation token.\
+   the allocation token may be returned to an authorized client for\
+   passing out-of-band to a client that uses it with an epp transform\
+   command.\
+\
+1.1.  conventions used in this document\
+\
+   the key words "must", "must not", "required", "shall", "shall not",\
+   "should", "should not", "recommended", "not recommended", "may", and\
+   "optional" in this document are to be interpreted as described in\
+   bcp 14 [rfc2119] [rfc8174] when, and only when, they appear in all\
+   capitals, as shown here.\
+\
+   xml is case sensitive.  unless stated otherwise, xml specifications\
+   and examples provided in this document must be interpreted in the\
+   character case presented in order to develop a conforming\
+   implementation.\
+\
+   in examples, "c:" represents lines sent by a protocol client and "s:"\
+   represents lines returned by a protocol server.  indentation and\
+   white space in the examples are provided only to illustrate element\
+   relationships and are not required in the protocol.\
+\
+   the xml namespace prefix "allocationtoken" is used for the namespace\
+   "urn:ietf:params:xml:ns:allocationtoken-1.0", but implementations\
+   must not depend on it and instead employ a proper namespace-aware xml\
+   parser and serializer to interpret and output the xml documents.\
+\
+   the "abc123" token value is used as a placeholder value in the\
+   examples.  the server must support token values that follow the\
+   security considerations (section 6).\
+\
+   the domain-object attribute values, including the "2foobar"\
+   <domain:pw> value, in the examples are provided for illustration\
+   purposes only.  refer to [rfc5731] for details on the domain-object\
+   attributes.\
+\
+2.  object attributes\
+\
+   this extension adds additional elements to epp object mappings\
+   similar to the epp domain name mapping [rfc5731].  only those new\
+   elements are described here.\
+\
+\
+\
+\
+\
+\
+gould & feher                standards track                    [page 3]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+2.1.  allocation token\
+\
+   the allocation token is a simple xml "token" type.  the exact format\
+   of the allocation token is up to server policy.  the server may have\
+   the allocation token for each object to match against the allocation\
+   token passed by the client to authorize the allocation of the object.\
+   the <allocationtoken:allocationtoken> element is used for all of the\
+   supported epp commands as well as the info response.  if the supplied\
+   allocation token passed to the server does not apply to the object,\
+   the server must return an epp error result code of 2201.\
+\
+   authorization information, similar to what is defined in the epp\
+   domain name mapping [rfc5731], is associated with objects to\
+   facilitate transfer operations.  the authorization information is\
+   assigned when an object is created.  the allocation token and the\
+   authorization information are both credentials but are used for\
+   different purposes and in different ways.  the allocation token is\
+   used to facilitate the allocation of an object instead of\
+   transferring the sponsorship of the object.  the allocation token is\
+   not managed by the client but is validated by the server to authorize\
+   assigning the initial sponsoring client of the object.\
+\
+   an example <allocationtoken:allocationtoken> element with value of\
+   "abc123":\
+\
+   <allocationtoken:allocationtoken xmlns:allocationtoken=\
+             "urn:ietf:params:xml:ns:allocationtoken-1.0">\
+     abc123\
+   </allocationtoken:allocationtoken>\
+\
+3.  epp command mapping\
+\
+   a detailed description of the epp syntax and semantics can be found\
+   in the epp core protocol specification [rfc5730].\
+\
+3.1.  epp query commands\
+\
+   epp provides three commands to retrieve object information: <check>\
+   to determine if an object can be provisioned, <info> to retrieve\
+   information associated with an object, and <transfer> to retrieve\
+   object-transfer status information.\
+\
+3.1.1.  epp <check> command\
+\
+   this extension defines additional elements to extend the epp <check>\
+   command of an object mapping similar to the mapping specified in\
+   [rfc5731].\
+\
+\
+\
+\
+gould & feher                standards track                    [page 4]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+   this extension allows clients to check the availability of an object\
+   with an allocation token, as described in section 2.1.  clients can\
+   check if an object can be created using the allocation token.  the\
+   allocation token is applied to all object names included in the epp\
+   <check> command.\
+\
+   the following is an example <check> command for the\
+   allocation.example domain name using the\
+   <allocationtoken:allocationtoken> extension with the allocation token\
+   of 'abc123':\
+\
+   c:<?xml version="1.0" encoding="utf-8" standalone="no"?>\
+   c:<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">\
+   c:  <command>\
+   c:    <check>\
+   c:      <domain:check\
+   c:       xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">\
+   c:        <domain:name>allocation.example</domain:name>\
+   c:      </domain:check>\
+   c:    </check>\
+   c:    <extension>\
+   c:      <allocationtoken:allocationtoken\
+   c:        xmlns:allocationtoken=\
+   c:          "urn:ietf:params:xml:ns:allocationtoken-1.0">\
+   c:        abc123\
+   c:      </allocationtoken:allocationtoken>\
+   c:    </extension>\
+   c:    <cltrid>abc-12345</cltrid>\
+   c:  </command>\
+   c:</epp>\
+\
+   if the query was successful, the server replies with a <check>\
+   response providing the availability status of the queried object\
+   based on the following allocation token cases where the object is\
+   otherwise available:\
+\
+   1.  if an object requires an allocation token and the allocation\
+       token does apply to the object, then the server must return the\
+       availability status as available (e.g., the "avail" attribute is\
+       "1" or "true").\
+   2.  if an object requires an allocation token and the allocation\
+       token does not apply to the object, then the server should return\
+       the availability status as unavailable (e.g., the "avail"\
+       attribute is "0" or "false").\
+   3.  if an object does not require an allocation token, the server may\
+       return the availability status as available (e.g., the "avail"\
+       attribute is "1" or "true").\
+\
+\
+\
+\
+gould & feher                standards track                    [page 5]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+   the following is an example <check> domain response for a <check>\
+   command using the <allocationtoken:allocationtoken> extension:\
+\
+   s:<?xml version="1.0" encoding="utf-8"?>\
+   s:<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">\
+   s: <response>\
+   s:  <result code="1000">\
+   s:   <msg lang="en-us">command completed successfully</msg>\
+   s:  </result>\
+   s:  <resdata>\
+   s:   <domain:chkdata\
+   s:     xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">\
+   s:    <domain:cd>\
+   s:     <domain:name avail="1">allocation.example</domain:name>\
+   s:    </domain:cd>\
+   s:   </domain:chkdata>\
+   s:  </resdata>\
+   s:  <trid>\
+   s:   <cltrid>abc-def-12345</cltrid>\
+   s:   <svtrid>54321-xyz</svtrid>\
+   s:  </trid>\
+   s: </response>\
+   s:</epp>\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+gould & feher                standards track                    [page 6]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+   the following is an example <check> command with the\
+   <allocationtoken:allocationtoken> extension for the\
+   allocation.example and allocation2.example domain names.\
+   availability of allocation.example and allocation2.example domain\
+   names are based on the allocation token 'abc123':\
+\
+   c:<?xml version="1.0" encoding="utf-8"?>\
+   c:<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">\
+   c: <command>\
+   c:  <check>\
+   c:   <domain:check\
+   c:     xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">\
+   c:    <domain:name>allocation.example</domain:name>\
+   c:    <domain:name>allocation2.example</domain:name>\
+   c:   </domain:check>\
+   c:  </check>\
+   c:  <extension>\
+   c:   <allocationtoken:allocationtoken\
+   c:     xmlns:allocationtoken=\
+   c:       "urn:ietf:params:xml:ns:allocationtoken-1.0">\
+   c:     abc123\
+   c:   </allocationtoken:allocationtoken>\
+   c:  </extension>\
+   c:  <cltrid>abc-def-12345</cltrid>\
+   c: </command>\
+   c:</epp>\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+gould & feher                standards track                    [page 7]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+   the following is an example <check> domain response for multiple\
+   domain names in the <check> command using the\
+   <allocationtoken:allocationtoken> extension, where the allocation\
+   token 'abc123' matches allocation.example but does not match\
+   allocation2.example:\
+\
+   s:<?xml version="1.0" encoding="utf-8"?>\
+   s:<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">\
+   s: <response>\
+   s:  <result code="1000">\
+   s:   <msg lang="en-us">command completed successfully</msg>\
+   s:  </result>\
+   s:  <resdata>\
+   s:   <domain:chkdata\
+   s:     xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">\
+   s:    <domain:cd>\
+   s:     <domain:name avail="1">allocation.example</domain:name>\
+   s:    </domain:cd>\
+   s:    <domain:cd>\
+   s:     <domain:name avail="0">allocation2.example</domain:name>\
+   s:     <domain:reason>allocation token mismatch</domain:reason>\
+   s:    </domain:cd>\
+   s:   </domain:chkdata>\
+   s:  </resdata>\
+   s:  <trid>\
+   s:   <cltrid>abc-def-12345</cltrid>\
+   s:   <svtrid>54321-xyz</svtrid>\
+   s:  </trid>\
+   s: </response>\
+   s:</epp>\
+\
+   this extension does not add any elements to the epp <check> response\
+   described in [rfc5730].\
+\
+3.1.2.  epp <info> command\
+\
+   this extension defines additional elements to extend the epp <info>\
+   command of an object mapping similar to the mapping specified in\
+   [rfc5731].\
+\
+   the epp <info> command allows a client to request information\
+   associated with an existing object.  authorized clients may retrieve\
+   the allocation token (section 2.1) along with the other object\
+   information by supplying the <allocationtoken:info> element in the\
+   command.  the <allocationtoken:info> element is an empty element that\
+   serves as a marker to the server to return the\
+   <allocationtoken:allocationtoken> element in the info response.  if\
+   the client is not authorized to receive the allocation token, the\
+\
+\
+\
+gould & feher                standards track                    [page 8]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+   server must return an epp error result code of 2201.  if the client\
+   is authorized to receive the allocation token, but there is no\
+   allocation token associated with the object, the server must return\
+   an epp error result code of 2303.  the authorization is subject to\
+   server policy.\
+\
+   the following is an example <info> command with the\
+   allocationtoken:info extension for the allocation.example domain\
+   name:\
+\
+   c:<?xml version="1.0" encoding="utf-8" standalone="no"?>\
+   c:<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">\
+   c:  <command>\
+   c:   <info>\
+   c:    <domain:info\
+   c:      xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">\
+   c:      <domain:name>allocation.example</domain:name>\
+   c:    </domain:info>\
+   c:   </info>\
+   c:   <extension>\
+   c:      <allocationtoken:info\
+   c:        xmlns:allocationtoken=\
+   c:          "urn:ietf:params:xml:ns:allocationtoken-1.0"/>\
+   c:   </extension>\
+   c:   <cltrid>abc-12345</cltrid>\
+   c:  </command>\
+   c:</epp>\
+\
+   if the query was successful, the server replies with an\
+   <allocationtoken:allocationtoken> element along with the regular epp\
+   <resdata>.  the <allocationtoken:allocationtoken> element is\
+   described in section 2.1.\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+gould & feher                standards track                    [page 9]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+   the following is an example <info> domain response using the\
+   <allocationtoken:allocationtoken> extension:\
+\
+   s:<?xml version="1.0" encoding="utf-8" standalone="no"?>\
+   s:<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">\
+   s:  <response>\
+   s:    <result code="1000">\
+   s:      <msg>command completed successfully</msg>\
+   s:    </result>\
+   s:    <resdata>\
+   s:      <domain:infdata\
+   s:       xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">\
+   s:        <domain:name>allocation.example</domain:name>\
+   s:        <domain:roid>example1-rep</domain:roid>\
+   s:        <domain:status s="pendingcreate"/>\
+   s:        <domain:registrant>jd1234</domain:registrant>\
+   s:        <domain:contact type="admin">sh8013</domain:contact>\
+   s:        <domain:contact type="tech">sh8013</domain:contact>\
+   s:        <domain:clid>clientx</domain:clid>\
+   s:        <domain:crid>clienty</domain:crid>\
+   s:        <domain:crdate>2012-04-03t22:00:00.0z</domain:crdate>\
+   s:        <domain:authinfo>\
+   s:          <domain:pw>2foobar</domain:pw>\
+   s:        </domain:authinfo>\
+   s:      </domain:infdata>\
+   s:    </resdata>\
+   s:    <extension>\
+   s:      <allocationtoken:allocationtoken\
+   s:        xmlns:allocationtoken=\
+   s:          "urn:ietf:params:xml:ns:allocationtoken-1.0">\
+   s:        abc123\
+   s:      </allocationtoken:allocationtoken>\
+   s:    </extension>\
+   s:    <trid>\
+   s:      <cltrid>abc-12345</cltrid>\
+   s:      <svtrid>54321-xyz</svtrid>\
+   s:    </trid>\
+   s:  </response>\
+   s:</epp>\
+\
+3.1.3.  epp <transfer> query command\
+\
+   this extension does not add any elements to the epp <transfer> query\
+   command or <transfer> query response described in [rfc5730].\
+\
+\
+\
+\
+\
+\
+\
+gould & feher                standards track                   [page 10]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+3.2.  epp transform commands\
+\
+   epp provides five commands to transform objects: <create> to create\
+   an instance of an object, <delete> to delete an instance of an\
+   object, <renew> to extend the validity period of an object,\
+   <transfer> to manage object sponsorship changes, and <update> to\
+   change information associated with an object.\
+\
+3.2.1.  epp <create> command\
+\
+   this extension defines additional elements to extend the epp <create>\
+   command of an object mapping similar to the mapping specified in\
+   [rfc5731].\
+\
+   the epp <create> command provides a transform operation that allows a\
+   client to create an instance of an object.  in addition to the epp\
+   command elements described in an object mapping similar to the\
+   mapping specified in [rfc5731], the command must contain a child\
+   <allocationtoken:allocationtoken> element for the client to be\
+   authorized to create and allocate the object.  if the allocation\
+   token does not apply to the object, the server must return an epp\
+   error result code of 2201.\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+gould & feher                standards track                   [page 11]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+   the following is an example <create> command to create a domain\
+   object with an allocation token:\
+\
+   c:<?xml version="1.0" encoding="utf-8" standalone="no"?>\
+   c:<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">\
+   c:  <command>\
+   c:    <create>\
+   c:      <domain:create\
+   c:       xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">\
+   c:        <domain:name>allocation.example</domain:name>\
+   c:        <domain:registrant>jd1234</domain:registrant>\
+   c:        <domain:contact type="admin">sh8013</domain:contact>\
+   c:        <domain:contact type="tech">sh8013</domain:contact>\
+   c:        <domain:authinfo>\
+   c:          <domain:pw>2foobar</domain:pw>\
+   c:        </domain:authinfo>\
+   c:      </domain:create>\
+   c:    </create>\
+   c:    <extension>\
+   c:      <allocationtoken:allocationtoken\
+   c:        xmlns:allocationtoken=\
+   c:          "urn:ietf:params:xml:ns:allocationtoken-1.0">\
+   c:        abc123\
+   c:      </allocationtoken:allocationtoken>\
+   c:    </extension>\
+   c:    <cltrid>abc-12345</cltrid>\
+   c:  </command>\
+   c:</epp>\
+\
+   this extension does not add any elements to the epp <create> response\
+   described in [rfc5730].\
+\
+3.2.2.  epp <delete> command\
+\
+   this extension does not add any elements to the epp <delete> command\
+   or <delete> response described in [rfc5730].\
+\
+3.2.3.  epp <renew> command\
+\
+   this extension does not add any elements to the epp <renew> command\
+   or <renew> response described in [rfc5730].\
+\
+3.2.4.  epp <transfer> command\
+\
+   this extension defines additional elements to extend the epp\
+   <transfer> command of an object mapping similar to the mapping\
+   specified in [rfc5731].\
+\
+\
+\
+\
+gould & feher                standards track                   [page 12]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+   the epp <transfer> command provides a transform operation that allows\
+   a client to request the transfer of an object.  in addition to the\
+   epp command elements described in an object mapping similar to the\
+   mapping specified in [rfc5731], the command must contain a child\
+   <allocationtoken:allocationtoken> element for the client to be\
+   authorized to transfer and allocate the object.  the authorization\
+   associated with the allocation token is in addition to, and does not\
+   replace, the authorization mechanism defined for the object's\
+   <transfer> command.  if the allocation token is invalid or not\
+   required for the object, the server must return an epp error result\
+   code of 2201.\
+\
+   the following is an example <transfer> command to allocate the domain\
+   object with the allocation token:\
+\
+   c:<?xml version="1.0" encoding="utf-8" standalone="no"?>\
+   c:<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">\
+   c:  <command>\
+   c:    <transfer op="request">\
+   c:      <domain:transfer\
+   c:        xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">\
+   c:        <domain:name>example1.tld</domain:name>\
+   c:        <domain:period unit="y">1</domain:period>\
+   c:        <domain:authinfo>\
+   c:          <domain:pw>2foobar</domain:pw>\
+   c:        </domain:authinfo>\
+   c:      </domain:transfer>\
+   c:    </transfer>\
+   c:    <extension>\
+   c:      <allocationtoken:allocationtoken\
+   c:        xmlns:allocationtoken=\
+   c:          "urn:ietf:params:xml:ns:allocationtoken-1.0">\
+   c:        abc123\
+   c:      </allocationtoken:allocationtoken>\
+   c:    </extension>\
+   c:    <cltrid>abc-12345</cltrid>\
+   c:  </command>\
+   c:</epp>\
+\
+   this extension does not add any elements to the epp <transfer>\
+   response described in [rfc5730].\
+\
+3.2.5.  epp <update> command\
+\
+   this extension does not add any elements to the epp <update> command\
+   or <update> response described in [rfc5730].\
+\
+\
+\
+\
+\
+gould & feher                standards track                   [page 13]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+4.  formal syntax\
+\
+   one schema is presented here: the epp allocation token extension\
+   schema.\
+\
+   the formal syntax presented here is a complete schema representation\
+   of the object mapping suitable for automated validation of epp xml\
+   instances.  the begin and end tags are not part of the schema; they\
+   are used to note the beginning and ending of the schema for uri\
+   registration purposes.\
+\
+4.1.  allocation token extension schema\
+\
+   begin\
+   <?xml version="1.0" encoding="utf-8"?>\
+   <schema xmlns="http://www.w3.org/2001/xmlschema"\
+     xmlns:allocationtoken="urn:ietf:params:xml:ns:allocationtoken-1.0"\
+     targetnamespace="urn:ietf:params:xml:ns:allocationtoken-1.0"\
+     elementformdefault="qualified">\
+     <annotation>\
+       <documentation>\
+         extensible provisioning protocol v1.0\
+         allocation token extension\
+       </documentation>\
+     </annotation>\
+\
+     <!-- element used in info command to get allocation token. -->\
+     <element name="info">\
+       <complextype>\
+         <complexcontent>\
+           <restriction base="anytype" />\
+         </complexcontent>\
+       </complextype>\
+     </element>\
+\
+     <!-- allocation token used in transform\
+       commands and info response -->\
+     <element name="allocationtoken"\
+       type="allocationtoken:allocationtokentype" />\
+     <simpletype name="allocationtokentype">\
+       <restriction base="token">\
+         <minlength value="1" />\
+       </restriction>\
+     </simpletype>\
+\
+   <!-- end of schema. -->\
+   </schema>\
+   end\
+\
+\
+\
+gould & feher                standards track                   [page 14]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+5.  iana considerations\
+\
+5.1.  xml namespace\
+\
+   this document uses urns to describe xml namespaces and xml schemas\
+   conforming to a registry mechanism described in [rfc3688].\
+\
+   the allocationtoken namespace has been registered as follows.\
+\
+      uri: urn:ietf:params:xml:ns:allocationtoken-1.0\
+      registrant contact: iesg\
+      xml: none.  namespace uris do not represent an xml specification.\
+\
+   the allocationtoken xml schema has been registered as follows.\
+\
+      uri: urn:ietf:params:xml:schema:allocationtoken-1.0\
+      registrant contact: iesg\
+      xml: see the "formal syntax" section of this document.\
+\
+5.2.  epp extension registry\
+\
+   the following entry has been added to the extensions for the\
+   extensible provisioning protocol (epp) registry, as described in\
+   [rfc7451].\
+\
+   name of extension: allocation token extension for the extensible\
+   provisioning protocol (epp)\
+\
+   document status: standards track\
+\
+   reference: rfc 8495\
+\
+   registrant: iesg <iesg@ietf.org>\
+\
+   tlds: any\
+\
+   ipr disclosure: none\
+\
+   status: active\
+\
+   notes: none\
+\
+6.  security considerations\
+\
+   the mapping described in this document does not provide any security\
+   services beyond those described by epp [rfc5730] and protocol layers\
+   used by epp.  the security considerations described in these other\
+   specifications apply to this specification as well.\
+\
+\
+\
+gould & feher                standards track                   [page 15]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+   the mapping acts as a conduit for the passing of allocation tokens\
+   between a client and a server.  the definition of the allocation\
+   token should be defined outside of this mapping.  the following are\
+   security considerations in the definition and use of an allocation\
+   token:\
+\
+   1.  an allocation token should be considered secret information by\
+       the client; it should be protected at rest and must be protected\
+       in transit.\
+   2.  an allocation token should be single use, meaning it should be\
+       unique per object and per allocation operation.\
+   3.  an allocation token should have a limited life with some form of\
+       expiry in the allocation token, if generated by a trusted third\
+       party, or with a server-side expiry, if generated by the server.\
+   4.  an allocation token should use a strong random value if it is\
+       based on an unsigned code.\
+   5.  an allocation token should leverage digital signatures to confirm\
+       its authenticity if generated by a trusted third party.\
+   6.  an allocation token that is signed xml should be encoded (e.g.,\
+       base64 [rfc4648]) to mitigate server validation issues.\
+\
+7.  references\
+\
+7.1.  normative references\
+\
+   [rfc2119]  bradner, s., "key words for use in rfcs to indicate\
+              requirement levels", bcp 14, rfc 2119,\
+              doi 10.17487/rfc2119, march 1997,\
+              <https://www.rfc-editor.org/info/rfc2119>.\
+\
+   [rfc3688]  mealling, m., "the ietf xml registry", bcp 81, rfc 3688,\
+              doi 10.17487/rfc3688, january 2004,\
+              <https://www.rfc-editor.org/info/rfc3688>.\
+\
+   [rfc5730]  hollenbeck, s., "extensible provisioning protocol (epp)",\
+              std 69, rfc 5730, doi 10.17487/rfc5730, august 2009,\
+              <https://www.rfc-editor.org/info/rfc5730>.\
+\
+   [rfc5731]  hollenbeck, s., "extensible provisioning protocol (epp)\
+              domain name mapping", std 69, rfc 5731,\
+              doi 10.17487/rfc5731, august 2009,\
+              <https://www.rfc-editor.org/info/rfc5731>.\
+\
+   [rfc8174]  leiba, b., "ambiguity of uppercase vs lowercase in rfc\
+              2119 key words", bcp 14, rfc 8174, doi 10.17487/rfc8174,\
+              may 2017, <https://www.rfc-editor.org/info/rfc8174>.\
+\
+\
+\
+\
+\
+gould & feher                standards track                   [page 16]\
+\
+rfc 8495                    allocation token               november 2018\
+\
+\
+7.2.  informative references\
+\
+   [rfc4648]  josefsson, s., "the base16, base32, and base64 data\
+              encodings", rfc 4648, doi 10.17487/rfc4648, october 2006,\
+              <https://www.rfc-editor.org/info/rfc4648>.\
+\
+   [rfc7451]  hollenbeck, s., "extension registry for the extensible\
+              provisioning protocol", rfc 7451, doi 10.17487/rfc7451,\
+              february 2015, <https://www.rfc-editor.org/info/rfc7451>.\
+\
+acknowledgements\
+\
+   the authors wish to acknowledge the original concept for this\
+   document and the efforts in the initial draft versions of this\
+   document by trung tran and sharon wodjenski.\
+\
+   special suggestions that have been incorporated into this document\
+   were provided by ben campbell, scott hollenbeck, benjamin kaduk,\
+   mirja kuehlewind, rubens kuhl, alexander mayrhofer, patrick mevzek,\
+   eric rescoria, and adam roach.\
+\
+authors' addresses\
+\
+   james gould\
+   verisign, inc.\
+   12061 bluemont way\
+   reston, va  20190\
+   united states of america\
+\
+   email: jgould@verisign.com\
+   uri:   http://www.verisign.com\
+\
+\
+   kal feher\
+   neustar\
+   lvl 8/10 queens road\
+   melbourne, vic  3004\
+   australia\
+\
+   email: ietf@feherfamily.org\
+   uri:   http://www.neustar.biz\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+gould & feher                standards track                   [page 17]\
+\
+
+END
+checksum 00000000000481404063
+cfs entry for: _24v.inf
+number of fields 2
+  name name
+  number 0
+  index options DOCS_AND_FREQS_AND_POSITIONS
+  term vectors false
+  payloads false
+  norms true
+  doc values NONE
+  doc values gen -1
+  attributes 0
+  data dimensional count 0
+  index dimensional count 0
+  dimensional num bytes 0
+  vector number of dimensions 0
+  vector encoding FLOAT32
+  vector similarity EUCLIDEAN
+  soft-deletes false
+  name content
+  number 1
+  index options DOCS_AND_FREQS_AND_POSITIONS
+  term vectors false
+  payloads false
+  norms true
+  doc values NONE
+  doc values gen -1
+  attributes 0
+  data dimensional count 0
+  index dimensional count 0
+  dimensional num bytes 0
+  vector number of dimensions 0
+  vector encoding FLOAT32
+  vector similarity EUCLIDEAN
+  soft-deletes false
+checksum 00000000001132502587
+cfs entry for: _24v.len
+field name
+  type NUMERIC
+  minvalue 2
+  pattern 0
+0
+T
+field content
+  type NUMERIC
+  minvalue 103
+  pattern 0
+0
+T
+END
+checksum 00000000003652007605
+cfs entry for: _24v.pst
+field content
+  term "0"
+    doc 0
+      freq 1
+      pos 1875
+  term "1"
+    doc 0
+      freq 2
+      pos 1839
+      pos 1902
+  term "2foobar"
+    doc 0
+      freq 1
+      pos 1301
+  term "abc123"
+    doc 0
+      freq 1
+      pos 1270
+  term "abc123":
+    doc 0
+      freq 1
+      pos 1561
+  term "allocationtoken"
+    doc 0
+      freq 1
+      pos 1238
+  term "ambiguity
+    doc 0
+      freq 1
+      pos 3709
+  term "avail"
+    doc 0
+      freq 3
+      pos 1836
+      pos 1872
+      pos 1899
+  term "c:"
+    doc 0
+      freq 1
+      pos 1196
+  term "create"
+    doc 0
+      freq 2
+      pos 83
+      pos 950
+  term "extensible
+    doc 0
+      freq 2
+      pos 3674
+      pos 3690
+  term "extension
+    doc 0
+      freq 1
+      pos 3764
+  term "false").
+    doc 0
+      freq 1
+      pos 1877
+  term "formal
+    doc 0
+      freq 1
+      pos 3334
+  term "key
+    doc 0
+      freq 1
+      pos 3636
+  term "may",
+    doc 0
+      freq 1
+      pos 1135
+  term "must
+    doc 0
+      freq 1
+      pos 1123
+  term "must",
+    doc 0
+      freq 1
+      pos 1122
+  term "not
+    doc 0
+      freq 1
+      pos 1133
+  term "optional"
+    doc 0
+      freq 1
+      pos 1137
+  term "query"
+    doc 0
+      freq 1
+      pos 48
+  term "recommended",
+    doc 0
+      freq 1
+      pos 1132
+  term "required",
+    doc 0
+      freq 1
+      pos 1125
+  term "s:"
+    doc 0
+      freq 1
+      pos 1205
+  term "shall
+    doc 0
+      freq 1
+      pos 1127
+  term "shall",
+    doc 0
+      freq 1
+      pos 1126
+  term "should
+    doc 0
+      freq 1
+      pos 1130
+  term "should",
+    doc 0
+      freq 1
+      pos 1129
+  term "the
+    doc 0
+      freq 2
+      pos 3658
+      pos 3747
+  term "token"
+    doc 0
+      freq 1
+      pos 1372
+  term "transfer".
+    doc 0
+      freq 2
+      pos 85
+      pos 952
+  term "transform"
+    doc 0
+      freq 1
+      pos 50
+  term "true").
+    doc 0
+      freq 2
+      pos 1841
+      pos 1904
+  term "urn:ietf:params:xml:ns:allocationtoken-1.0",
+    doc 0
+      freq 1
+      pos 1244
+  term "urn:ietf:params:xml:ns:allocationtoken-1.0"/>
+    doc 0
+      freq 1
+      pos 2384
+  term "urn:ietf:params:xml:ns:allocationtoken-1.0">
+    doc 0
+      freq 6
+      pos 1564
+      pos 1762
+      pos 2052
+      pos 2504
+      pos 2786
+      pos 3054
+  term &
+    doc 0
+      freq 17
+      pos 268
+      pos 1035
+      pos 1350
+      pos 1653
+      pos 1906
+      pos 1980
+      pos 2065
+      pos 2281
+      pos 2419
+      pos 2548
+      pos 2717
+      pos 2884
+      pos 3104
+      pos 3257
+      pos 3437
+      pos 3729
+      pos 3874
+  term 'abc123'
+    doc 0
+      freq 1
+      pos 2101
+  term 'abc123':
+    doc 0
+      freq 2
+      pos 1734
+      pos 2023
+  term (c)
+    doc 0
+      freq 1
+      pos 173
+  term (e.g.,
+    doc 0
+      freq 4
+      pos 1834
+      pos 1870
+      pos 1897
+      pos 3620
+  term (epp)
+    doc 0
+      freq 6
+      pos 31
+      pos 40
+      pos 899
+      pos 3358
+      pos 3375
+      pos 3693
+  term (epp)",
+    doc 0
+      freq 1
+      pos 3677
+  term (https://trustee.ietf.org/license-info)
+    doc 0
+      freq 1
+      pos 205
+  term (iesg).
+    doc 0
+      freq 1
+      pos 134
+  term (ietf)
+    doc 0
+      freq 1
+      pos 4
+  term (ietf).
+    doc 0
+      freq 1
+      pos 108
+  term (section
+    doc 0
+      freq 2
+      pos 1293
+      pos 2228
+  term -->
+    doc 0
+      freq 3
+      pos 3214
+      pos 3235
+      pos 3253
+  term .
+    doc 0
+      freq 483
+      pos 285
+      pos 286
+      pos 287
+      pos 288
+      pos 289
+      pos 290
+      pos 291
+      pos 292
+      pos 293
+      pos 294
+      pos 295
+      pos 296
+      pos 297
+      pos 298
+      pos 299
+      pos 300
+      pos 301
+      pos 302
+      pos 303
+      pos 304
+      pos 305
+      pos 306
+      pos 307
+      pos 308
+      pos 316
+      pos 317
+      pos 318
+      pos 319
+      pos 320
+      pos 321
+      pos 322
+      pos 323
+      pos 324
+      pos 325
+      pos 326
+      pos 327
+      pos 332
+      pos 333
+      pos 334
+      pos 335
+      pos 336
+      pos 337
+      pos 338
+      pos 339
+      pos 340
+      pos 341
+      pos 342
+      pos 343
+      pos 344
+      pos 345
+      pos 346
+      pos 347
+      pos 348
+      pos 349
+      pos 350
+      pos 351
+      pos 352
+      pos 353
+      pos 358
+      pos 359
+      pos 360
+      pos 361
+      pos 362
+      pos 363
+      pos 364
+      pos 365
+      pos 366
+      pos 367
+      pos 368
+      pos 369
+      pos 370
+      pos 371
+      pos 372
+      pos 373
+      pos 374
+      pos 375
+      pos 376
+      pos 377
+      pos 383
+      pos 384
+      pos 385
+      pos 386
+      pos 387
+      pos 388
+      pos 389
+      pos 390
+      pos 391
+      pos 392
+      pos 393
+      pos 394
+      pos 395
+      pos 396
+      pos 397
+      pos 398
+      pos 399
+      pos 400
+      pos 401
+      pos 402
+      pos 403
+      pos 409
+      pos 410
+      pos 411
+      pos 412
+      pos 413
+      pos 414
+      pos 415
+      pos 416
+      pos 417
+      pos 418
+      pos 419
+      pos 420
+      pos 421
+      pos 422
+      pos 423
+      pos 424
+      pos 425
+      pos 426
+      pos 427
+      pos 433
+      pos 434
+      pos 435
+      pos 436
+      pos 437
+      pos 438
+      pos 439
+      pos 440
+      pos 441
+      pos 442
+      pos 443
+      pos 444
+      pos 445
+      pos 446
+      pos 447
+      pos 448
+      pos 449
+      pos 455
+      pos 456
+      pos 457
+      pos 458
+      pos 459
+      pos 460
+      pos 461
+      pos 462
+      pos 463
+      pos 464
+      pos 465
+      pos 466
+      pos 467
+      pos 468
+      pos 469
+      pos 470
+      pos 471
+      pos 478
+      pos 479
+      pos 480
+      pos 481
+      pos 482
+      pos 483
+      pos 484
+      pos 485
+      pos 486
+      pos 487
+      pos 488
+      pos 489
+      pos 495
+      pos 496
+      pos 497
+      pos 498
+      pos 499
+      pos 500
+      pos 501
+      pos 502
+      pos 503
+      pos 504
+      pos 505
+      pos 506
+      pos 507
+      pos 508
+      pos 509
+      pos 510
+      pos 511
+      pos 517
+      pos 518
+      pos 519
+      pos 520
+      pos 521
+      pos 522
+      pos 523
+      pos 524
+      pos 525
+      pos 526
+      pos 527
+      pos 528
+      pos 529
+      pos 530
+      pos 531
+      pos 532
+      pos 538
+      pos 539
+      pos 540
+      pos 541
+      pos 542
+      pos 543
+      pos 544
+      pos 545
+      pos 546
+      pos 547
+      pos 548
+      pos 549
+      pos 550
+      pos 551
+      pos 552
+      pos 553
+      pos 559
+      pos 560
+      pos 561
+      pos 562
+      pos 563
+      pos 564
+      pos 565
+      pos 566
+      pos 567
+      pos 568
+      pos 569
+      pos 570
+      pos 571
+      pos 572
+      pos 573
+      pos 574
+      pos 575
+      pos 581
+      pos 582
+      pos 583
+      pos 584
+      pos 585
+      pos 586
+      pos 587
+      pos 588
+      pos 589
+      pos 590
+      pos 591
+      pos 592
+      pos 593
+      pos 594
+      pos 595
+      pos 601
+      pos 602
+      pos 603
+      pos 604
+      pos 605
+      pos 606
+      pos 607
+      pos 608
+      pos 609
+      pos 610
+      pos 611
+      pos 612
+      pos 613
+      pos 614
+      pos 615
+      pos 616
+      pos 621
+      pos 622
+      pos 623
+      pos 624
+      pos 625
+      pos 626
+      pos 627
+      pos 628
+      pos 629
+      pos 630
+      pos 631
+      pos 632
+      pos 633
+      pos 634
+      pos 635
+      pos 636
+      pos 637
+      pos 638
+      pos 639
+      pos 640
+      pos 641
+      pos 642
+      pos 643
+      pos 644
+      pos 651
+      pos 652
+      pos 653
+      pos 654
+      pos 655
+      pos 656
+      pos 657
+      pos 658
+      pos 659
+      pos 660
+      pos 661
+      pos 662
+      pos 667
+      pos 668
+      pos 669
+      pos 670
+      pos 671
+      pos 672
+      pos 673
+      pos 674
+      pos 675
+      pos 676
+      pos 677
+      pos 678
+      pos 679
+      pos 680
+      pos 681
+      pos 682
+      pos 683
+      pos 684
+      pos 685
+      pos 686
+      pos 687
+      pos 692
+      pos 693
+      pos 694
+      pos 695
+      pos 696
+      pos 697
+      pos 698
+      pos 699
+      pos 700
+      pos 701
+      pos 702
+      pos 703
+      pos 704
+      pos 705
+      pos 706
+      pos 707
+      pos 708
+      pos 709
+      pos 710
+      pos 711
+      pos 712
+      pos 713
+      pos 719
+      pos 720
+      pos 721
+      pos 722
+      pos 723
+      pos 724
+      pos 725
+      pos 726
+      pos 727
+      pos 728
+      pos 729
+      pos 730
+      pos 731
+      pos 732
+      pos 733
+      pos 734
+      pos 735
+      pos 740
+      pos 741
+      pos 742
+      pos 743
+      pos 744
+      pos 745
+      pos 746
+      pos 747
+      pos 748
+      pos 749
+      pos 750
+      pos 751
+      pos 752
+      pos 753
+      pos 754
+      pos 755
+      pos 756
+      pos 757
+      pos 758
+      pos 762
+      pos 763
+      pos 764
+      pos 765
+      pos 766
+      pos 767
+      pos 768
+      pos 769
+      pos 770
+      pos 771
+      pos 772
+      pos 773
+      pos 774
+      pos 775
+      pos 776
+      pos 777
+      pos 778
+      pos 779
+      pos 780
+      pos 781
+      pos 782
+      pos 783
+      pos 784
+      pos 785
+      pos 786
+      pos 791
+      pos 792
+      pos 793
+      pos 794
+      pos 795
+      pos 796
+      pos 797
+      pos 798
+      pos 799
+      pos 800
+      pos 801
+      pos 802
+      pos 803
+      pos 804
+      pos 805
+      pos 806
+      pos 807
+      pos 808
+      pos 813
+      pos 814
+      pos 815
+      pos 816
+      pos 817
+      pos 818
+      pos 819
+      pos 820
+      pos 821
+      pos 822
+      pos 823
+      pos 824
+      pos 825
+      pos 826
+      pos 827
+      pos 828
+      pos 829
+      pos 832
+      pos 833
+      pos 834
+      pos 835
+      pos 836
+      pos 837
+      pos 838
+      pos 839
+      pos 840
+      pos 841
+      pos 842
+      pos 843
+      pos 844
+      pos 845
+      pos 846
+      pos 847
+      pos 848
+      pos 849
+      pos 850
+      pos 851
+      pos 852
+      pos 853
+      pos 854
+      pos 855
+      pos 859
+      pos 860
+      pos 861
+      pos 862
+      pos 863
+      pos 864
+      pos 865
+      pos 866
+      pos 867
+      pos 868
+      pos 869
+      pos 870
+      pos 871
+      pos 872
+      pos 873
+      pos 874
+      pos 875
+      pos 876
+      pos 877
+      pos 878
+      pos 879
+      pos 880
+      pos 881
+  term />
+    doc 0
+      freq 3
+      pos 3221
+      pos 3239
+      pos 3246
+  term 1.
+    doc 0
+      freq 4
+      pos 283
+      pos 883
+      pos 1807
+      pos 3494
+  term 1.0
+    doc 0
+      freq 1
+      pos 893
+  term 1.1.
+    doc 0
+      freq 2
+      pos 310
+      pos 1113
+  term 10
+    doc 0
+      freq 1
+      pos 490
+  term 10.17487/rfc2119,
+    doc 0
+      freq 1
+      pos 3651
+  term 10.17487/rfc3688,
+    doc 0
+      freq 1
+      pos 3667
+  term 10.17487/rfc4648,
+    doc 0
+      freq 1
+      pos 3757
+  term 10.17487/rfc5730,
+    doc 0
+      freq 1
+      pos 3683
+  term 10.17487/rfc5731,
+    doc 0
+      freq 1
+      pos 3702
+  term 10.17487/rfc7451,
+    doc 0
+      freq 1
+      pos 3774
+  term 10.17487/rfc8174,
+    doc 0
+      freq 1
+      pos 3724
+  term 10]
+    doc 0
+      freq 1
+      pos 2553
+  term 11
+    doc 0
+      freq 2
+      pos 512
+      pos 533
+  term 11]
+    doc 0
+      freq 1
+      pos 2722
+  term 12
+    doc 0
+      freq 3
+      pos 554
+      pos 576
+      pos 596
+  term 12061
+    doc 0
+      freq 1
+      pos 3844
+  term 12]
+    doc 0
+      freq 1
+      pos 2889
+  term 13
+    doc 0
+      freq 1
+      pos 617
+  term 13]
+    doc 0
+      freq 1
+      pos 3109
+  term 14
+    doc 0
+      freq 3
+      pos 645
+      pos 663
+      pos 1149
+  term 14,
+    doc 0
+      freq 2
+      pos 3647
+      pos 3720
+  term 14]
+    doc 0
+      freq 1
+      pos 3262
+  term 15
+    doc 0
+      freq 4
+      pos 688
+      pos 714
+      pos 736
+      pos 759
+  term 15]
+    doc 0
+      freq 1
+      pos 3442
+  term 16
+    doc 0
+      freq 2
+      pos 787
+      pos 809
+  term 16]
+    doc 0
+      freq 1
+      pos 3734
+  term 17
+    doc 0
+      freq 3
+      pos 830
+      pos 856
+      pos 882
+  term 17]
+    doc 0
+      freq 1
+      pos 3879
+  term 1997,
+    doc 0
+      freq 1
+      pos 3653
+  term 1]
+    doc 0
+      freq 1
+      pos 273
+  term 2
+    doc 0
+      freq 2
+      pos 144
+      pos 309
+  term 2.
+    doc 0
+      freq 4
+      pos 329
+      pos 1322
+      pos 1842
+      pos 3518
+  term 2.1)
+    doc 0
+      freq 1
+      pos 2229
+  term 2.1.
+    doc 0
+      freq 4
+      pos 355
+      pos 1362
+      pos 1684
+      pos 2417
+  term 2004,
+    doc 0
+      freq 1
+      pos 3669
+  term 2006,
+    doc 0
+      freq 1
+      pos 3759
+  term 2009,
+    doc 0
+      freq 2
+      pos 3685
+      pos 3704
+  term 2015,
+    doc 0
+      freq 1
+      pos 3776
+  term 2017,
+    doc 0
+      freq 1
+      pos 3726
+  term 2018
+    doc 0
+      freq 18
+      pos 22
+      pos 174
+      pos 279
+      pos 1046
+      pos 1361
+      pos 1664
+      pos 1917
+      pos 1991
+      pos 2076
+      pos 2292
+      pos 2430
+      pos 2559
+      pos 2728
+      pos 2895
+      pos 3115
+      pos 3268
+      pos 3448
+      pos 3740
+  term 20190
+    doc 0
+      freq 1
+      pos 3849
+  term 2070-1721
+    doc 0
+      freq 1
+      pos 19
+  term 2119
+    doc 0
+      freq 1
+      pos 3716
+  term 2119,
+    doc 0
+      freq 1
+      pos 3649
+  term 2201.
+    doc 0
+      freq 4
+      pos 1456
+      pos 2302
+      pos 2715
+      pos 3000
+  term 2303.
+    doc 0
+      freq 1
+      pos 2333
+  term 2]
+    doc 0
+      freq 1
+      pos 1040
+  term 3
+    doc 0
+      freq 2
+      pos 328
+      pos 354
+  term 3.
+    doc 0
+      freq 4
+      pos 379
+      pos 1567
+      pos 1878
+      pos 3537
+  term 3.1.
+    doc 0
+      freq 2
+      pos 405
+      pos 1590
+  term 3.1.1.
+    doc 0
+      freq 2
+      pos 429
+      pos 1626
+  term 3.1.2.
+    doc 0
+      freq 2
+      pos 451
+      pos 2180
+  term 3.1.3.
+    doc 0
+      freq 2
+      pos 473
+      pos 2522
+  term 3.2.
+    doc 0
+      freq 2
+      pos 491
+      pos 2560
+  term 3.2.1.
+    doc 0
+      freq 2
+      pos 513
+      pos 2611
+  term 3.2.2.
+    doc 0
+      freq 2
+      pos 534
+      pos 2813
+  term 3.2.3.
+    doc 0
+      freq 2
+      pos 555
+      pos 2835
+  term 3.2.4.
+    doc 0
+      freq 2
+      pos 577
+      pos 2857
+  term 3.2.5.
+    doc 0
+      freq 2
+      pos 597
+      pos 3081
+  term 3004
+    doc 0
+      freq 1
+      pos 3867
+  term 3688,
+    doc 0
+      freq 1
+      pos 3665
+  term 3]
+    doc 0
+      freq 1
+      pos 1355
+  term 4
+    doc 0
+      freq 4
+      pos 378
+      pos 404
+      pos 428
+      pos 450
+  term 4.
+    doc 0
+      freq 3
+      pos 618
+      pos 3116
+      pos 3572
+  term 4.1.
+    doc 0
+      freq 2
+      pos 646
+      pos 3179
+  term 4.e
+    doc 0
+      freq 1
+      pos 249
+  term 4648,
+    doc 0
+      freq 1
+      pos 3755
+  term 4]
+    doc 0
+      freq 1
+      pos 1658
+  term 5.
+    doc 0
+      freq 3
+      pos 664
+      pos 3269
+      pos 3590
+  term 5.1.
+    doc 0
+      freq 2
+      pos 689
+      pos 3272
+  term 5.2.
+    doc 0
+      freq 2
+      pos 715
+      pos 3340
+  term 5730,
+    doc 0
+      freq 1
+      pos 3681
+  term 5731,
+    doc 0
+      freq 1
+      pos 3700
+  term 5]
+    doc 0
+      freq 1
+      pos 1911
+  term 6).
+    doc 0
+      freq 1
+      pos 1294
+  term 6.
+    doc 0
+      freq 3
+      pos 737
+      pos 3395
+      pos 3609
+  term 69,
+    doc 0
+      freq 2
+      pos 3679
+      pos 3698
+  term 6]
+    doc 0
+      freq 1
+      pos 1985
+  term 7.
+    doc 0
+      freq 2
+      pos 760
+      pos 3628
+  term 7.1.
+    doc 0
+      freq 2
+      pos 788
+      pos 3630
+  term 7.2.
+    doc 0
+      freq 2
+      pos 810
+      pos 3741
+  term 7451,
+    doc 0
+      freq 1
+      pos 3772
+  term 78
+    doc 0
+      freq 1
+      pos 194
+  term 7841.
+    doc 0
+      freq 1
+      pos 147
+  term 7]
+    doc 0
+      freq 1
+      pos 2070
+  term 8
+    doc 0
+      freq 1
+      pos 472
+  term 8/10
+    doc 0
+      freq 1
+      pos 3862
+  term 81,
+    doc 0
+      freq 1
+      pos 3663
+  term 8174,
+    doc 0
+      freq 1
+      pos 3722
+  term 8495
+    doc 0
+      freq 18
+      pos 10
+      pos 275
+      pos 1042
+      pos 1357
+      pos 1660
+      pos 1913
+      pos 1987
+      pos 2072
+      pos 2288
+      pos 2426
+      pos 2555
+      pos 2724
+      pos 2891
+      pos 3111
+      pos 3264
+      pos 3382
+      pos 3444
+      pos 3736
+  term 8]
+    doc 0
+      freq 1
+      pos 2286
+  term 9]
+    doc 0
+      freq 1
+      pos 2424
+  term <!--
+    doc 0
+      freq 3
+      pos 3204
+      pos 3225
+      pos 3249
+  term </allocationtoken:allocationtoken>
+    doc 0
+      freq 6
+      pos 1566
+      pos 1766
+      pos 2056
+      pos 2508
+      pos 2790
+      pos 3058
+  term </annotation>
+    doc 0
+      freq 1
+      pos 3203
+  term </check>
+    doc 0
+      freq 2
+      pos 1754
+      pos 2044
+  term </command>
+    doc 0
+      freq 5
+      pos 1772
+      pos 2062
+      pos 2390
+      pos 2796
+      pos 3064
+  term </complexcontent>
+    doc 0
+      freq 1
+      pos 3222
+  term </complextype>
+    doc 0
+      freq 1
+      pos 3223
+  term </create>
+    doc 0
+      freq 1
+      pos 2778
+  term </documentation>
+    doc 0
+      freq 1
+      pos 3202
+  term </domain:authinfo>
+    doc 0
+      freq 3
+      pos 2492
+      pos 2774
+      pos 3042
+  term </domain:cd>
+    doc 0
+      freq 3
+      pos 1963
+      pos 2138
+      pos 2149
+  term </domain:check>
+    doc 0
+      freq 2
+      pos 1752
+      pos 2042
+  term </domain:chkdata>
+    doc 0
+      freq 2
+      pos 1965
+      pos 2151
+  term </domain:create>
+    doc 0
+      freq 1
+      pos 2776
+  term </domain:infdata>
+    doc 0
+      freq 1
+      pos 2494
+  term </domain:info>
+    doc 0
+      freq 1
+      pos 2374
+  term </domain:transfer>
+    doc 0
+      freq 1
+      pos 3044
+  term </element>
+    doc 0
+      freq 1
+      pos 3224
+  term </extension>
+    doc 0
+      freq 6
+      pos 1768
+      pos 2058
+      pos 2386
+      pos 2510
+      pos 2792
+      pos 3060
+  term </info>
+    doc 0
+      freq 1
+      pos 2376
+  term </resdata>
+    doc 0
+      freq 3
+      pos 1967
+      pos 2153
+      pos 2496
+  term </response>
+    doc 0
+      freq 3
+      pos 1977
+      pos 2163
+      pos 2520
+  term </restriction>
+    doc 0
+      freq 1
+      pos 3247
+  term </result>
+    doc 0
+      freq 3
+      pos 1950
+      pos 2125
+      pos 2459
+  term </schema>
+    doc 0
+      freq 1
+      pos 3254
+  term </simpletype>
+    doc 0
+      freq 1
+      pos 3248
+  term </transfer>
+    doc 0
+      freq 1
+      pos 3046
+  term </trid>
+    doc 0
+      freq 3
+      pos 1975
+      pos 2161
+      pos 2518
+  term <?xml
+    doc 0
+      freq 1
+      pos 3185
+  term <allocationtoken:allocationtoken
+    doc 0
+      freq 6
+      pos 1562
+      pos 1758
+      pos 2048
+      pos 2500
+      pos 2782
+      pos 3050
+  term <allocationtoken:allocationtoken>
+    doc 0
+      freq 12
+      pos 1414
+      pos 1556
+      pos 1727
+      pos 1932
+      pos 2001
+      pos 2095
+      pos 2262
+      pos 2402
+      pos 2411
+      pos 2441
+      pos 2681
+      pos 2940
+  term <allocationtoken:info
+    doc 0
+      freq 1
+      pos 2380
+  term <allocationtoken:info>
+    doc 0
+      freq 2
+      pos 2239
+      pos 2245
+  term <annotation>
+    doc 0
+      freq 1
+      pos 3193
+  term <check>
+    doc 0
+      freq 15
+      pos 431
+      pos 1602
+      pos 1628
+      pos 1639
+      pos 1711
+      pos 1718
+      pos 1744
+      pos 1784
+      pos 1923
+      pos 1928
+      pos 1997
+      pos 2032
+      pos 2082
+      pos 2091
+      pos 2175
+  term <cltrid>abc-12345</cltrid>
+    doc 0
+      freq 5
+      pos 1770
+      pos 2388
+      pos 2514
+      pos 2794
+      pos 3062
+  term <cltrid>abc-def-12345</cltrid>
+    doc 0
+      freq 3
+      pos 1971
+      pos 2060
+      pos 2157
+  term <command>
+    doc 0
+      freq 5
+      pos 1742
+      pos 2030
+      pos 2364
+      pos 2752
+      pos 3024
+  term <complexcontent>
+    doc 0
+      freq 1
+      pos 3218
+  term <complextype>
+    doc 0
+      freq 1
+      pos 3217
+  term <create>
+    doc 0
+      freq 8
+      pos 515
+      pos 2571
+      pos 2613
+      pos 2624
+      pos 2639
+      pos 2734
+      pos 2754
+      pos 2808
+  term <delete>
+    doc 0
+      freq 5
+      pos 536
+      pos 2579
+      pos 2815
+      pos 2827
+      pos 2830
+  term <documentation>
+    doc 0
+      freq 1
+      pos 3194
+  term <domain:authinfo>
+    doc 0
+      freq 3
+      pos 2488
+      pos 2770
+      pos 3038
+  term <domain:cd>
+    doc 0
+      freq 3
+      pos 1958
+      pos 2133
+      pos 2140
+  term <domain:check
+    doc 0
+      freq 2
+      pos 1746
+      pos 2034
+  term <domain:chkdata
+    doc 0
+      freq 2
+      pos 1954
+      pos 2129
+  term <domain:clid>clientx</domain:clid>
+    doc 0
+      freq 1
+      pos 2482
+  term <domain:contact
+    doc 0
+      freq 4
+      pos 2476
+      pos 2479
+      pos 2764
+      pos 2767
+  term <domain:crdate>2012-04-03t22:00:00.0z</domain:crdate>
+    doc 0
+      freq 1
+      pos 2486
+  term <domain:create
+    doc 0
+      freq 1
+      pos 2756
+  term <domain:crid>clienty</domain:crid>
+    doc 0
+      freq 1
+      pos 2484
+  term <domain:infdata
+    doc 0
+      freq 1
+      pos 2463
+  term <domain:info
+    doc 0
+      freq 1
+      pos 2368
+  term <domain:name
+    doc 0
+      freq 3
+      pos 1960
+      pos 2135
+      pos 2142
+  term <domain:name>allocation.example</domain:name>
+    doc 0
+      freq 5
+      pos 1750
+      pos 2038
+      pos 2372
+      pos 2467
+      pos 2760
+  term <domain:name>allocation2.example</domain:name>
+    doc 0
+      freq 1
+      pos 2040
+  term <domain:name>example1.tld</domain:name>
+    doc 0
+      freq 1
+      pos 3033
+  term <domain:period
+    doc 0
+      freq 1
+      pos 3035
+  term <domain:pw>
+    doc 0
+      freq 1
+      pos 1302
+  term <domain:pw>2foobar</domain:pw>
+    doc 0
+      freq 3
+      pos 2490
+      pos 2772
+      pos 3040
+  term <domain:reason>allocation
+    doc 0
+      freq 1
+      pos 2145
+  term <domain:registrant>jd1234</domain:registrant>
+    doc 0
+      freq 2
+      pos 2474
+      pos 2762
+  term <domain:roid>example1-rep</domain:roid>
+    doc 0
+      freq 1
+      pos 2469
+  term <domain:status
+    doc 0
+      freq 1
+      pos 2471
+  term <domain:transfer
+    doc 0
+      freq 1
+      pos 3029
+  term <element
+    doc 0
+      freq 2
+      pos 3215
+      pos 3236
+  term <extension>
+    doc 0
+      freq 6
+      pos 1756
+      pos 2046
+      pos 2378
+      pos 2498
+      pos 2780
+      pos 3048
+  term <https://www.rfc-editor.org/info/rfc2119>.
+    doc 0
+      freq 1
+      pos 3654
+  term <https://www.rfc-editor.org/info/rfc3688>.
+    doc 0
+      freq 1
+      pos 3670
+  term <https://www.rfc-editor.org/info/rfc4648>.
+    doc 0
+      freq 1
+      pos 3760
+  term <https://www.rfc-editor.org/info/rfc5730>.
+    doc 0
+      freq 1
+      pos 3686
+  term <https://www.rfc-editor.org/info/rfc5731>.
+    doc 0
+      freq 1
+      pos 3705
+  term <https://www.rfc-editor.org/info/rfc7451>.
+    doc 0
+      freq 1
+      pos 3777
+  term <https://www.rfc-editor.org/info/rfc8174>.
+    doc 0
+      freq 1
+      pos 3727
+  term <iesg@ietf.org>
+    doc 0
+      freq 1
+      pos 3385
+  term <info>
+    doc 0
+      freq 8
+      pos 453
+      pos 1611
+      pos 2182
+      pos 2193
+      pos 2208
+      pos 2346
+      pos 2366
+      pos 2436
+  term <minlength
+    doc 0
+      freq 1
+      pos 3244
+  term <msg
+    doc 0
+      freq 2
+      pos 1945
+      pos 2120
+  term <msg>command
+    doc 0
+      freq 1
+      pos 2455
+  term <renew>
+    doc 0
+      freq 5
+      pos 557
+      pos 2587
+      pos 2837
+      pos 2849
+      pos 2852
+  term <resdata>
+    doc 0
+      freq 3
+      pos 1952
+      pos 2127
+      pos 2461
+  term <resdata>.
+    doc 0
+      freq 1
+      pos 2409
+  term <response>
+    doc 0
+      freq 3
+      pos 1940
+      pos 2115
+      pos 2450
+  term <restriction
+    doc 0
+      freq 2
+      pos 3219
+      pos 3242
+  term <result
+    doc 0
+      freq 3
+      pos 1942
+      pos 2117
+      pos 2452
+  term <schema
+    doc 0
+      freq 1
+      pos 3188
+  term <simpletype
+    doc 0
+      freq 1
+      pos 3240
+  term <svtrid>54321-xyz</svtrid>
+    doc 0
+      freq 3
+      pos 1973
+      pos 2159
+      pos 2516
+  term <transfer
+    doc 0
+      freq 1
+      pos 3026
+  term <transfer>
+    doc 0
+      freq 13
+      pos 475
+      pos 579
+      pos 1620
+      pos 2524
+      pos 2537
+      pos 2541
+      pos 2596
+      pos 2859
+      pos 2870
+      pos 2898
+      pos 2976
+      pos 3006
+      pos 3076
+  term <trid>
+    doc 0
+      freq 3
+      pos 1969
+      pos 2155
+      pos 2512
+  term <update>
+    doc 0
+      freq 5
+      pos 599
+      pos 2603
+      pos 3083
+      pos 3095
+      pos 3098
+  term [page
+    doc 0
+      freq 17
+      pos 272
+      pos 1039
+      pos 1354
+      pos 1657
+      pos 1910
+      pos 1984
+      pos 2069
+      pos 2285
+      pos 2423
+      pos 2552
+      pos 2721
+      pos 2888
+      pos 3108
+      pos 3261
+      pos 3441
+      pos 3733
+      pos 3878
+  term [rfc2119]
+    doc 0
+      freq 2
+      pos 1150
+      pos 3633
+  term [rfc3688]
+    doc 0
+      freq 1
+      pos 3655
+  term [rfc3688].
+    doc 0
+      freq 1
+      pos 3293
+  term [rfc4648]
+    doc 0
+      freq 1
+      pos 3744
+  term [rfc4648])
+    doc 0
+      freq 1
+      pos 3622
+  term [rfc5730]
+    doc 0
+      freq 2
+      pos 3415
+      pos 3671
+  term [rfc5730].
+    doc 0
+      freq 9
+      pos 900
+      pos 1589
+      pos 2179
+      pos 2546
+      pos 2812
+      pos 2834
+      pos 2856
+      pos 3080
+      pos 3102
+  term [rfc5731]
+    doc 0
+      freq 2
+      pos 1315
+      pos 3687
+  term [rfc5731],
+    doc 0
+      freq 4
+      pos 918
+      pos 1470
+      pos 2674
+      pos 2933
+  term [rfc5731].
+    doc 0
+      freq 5
+      pos 1341
+      pos 1651
+      pos 2205
+      pos 2636
+      pos 2882
+  term [rfc7451]
+    doc 0
+      freq 1
+      pos 3761
+  term [rfc7451].
+    doc 0
+      freq 1
+      pos 3363
+  term [rfc8174]
+    doc 0
+      freq 2
+      pos 1151
+      pos 3706
+  term a
+    doc 0
+      freq 44
+      pos 58
+      pos 62
+      pos 69
+      pos 100
+      pos 925
+      pos 929
+      pos 936
+      pos 956
+      pos 977
+      pos 981
+      pos 986
+      pos 998
+      pos 1002
+      pos 1018
+      pos 1031
+      pos 1103
+      pos 1191
+      pos 1201
+      pos 1210
+      pos 1255
+      pos 1276
+      pos 1369
+      pos 1571
+      pos 1783
+      pos 1927
+      pos 2211
+      pos 2254
+      pos 2642
+      pos 2647
+      pos 2679
+      pos 2738
+      pos 2901
+      pos 2906
+      pos 2938
+      pos 3136
+      pos 3288
+      pos 3453
+      pos 3462
+      pos 3465
+      pos 3543
+      pos 3558
+      pos 3564
+      pos 3578
+      pos 3605
+  term abc123
+    doc 0
+      freq 6
+      pos 1565
+      pos 1764
+      pos 2054
+      pos 2506
+      pos 2788
+      pos 3056
+  term about
+    doc 0
+      freq 1
+      pos 149
+  term abstract
+    doc 0
+      freq 1
+      pos 32
+  term acknowledge
+    doc 0
+      freq 1
+      pos 3783
+  term acknowledgements
+    doc 0
+      freq 2
+      pos 831
+      pos 3778
+  term active
+    doc 0
+      freq 1
+      pos 3392
+  term acts
+    doc 0
+      freq 1
+      pos 3451
+  term adam
+    doc 0
+      freq 1
+      pos 3836
+  term add
+    doc 0
+      freq 7
+      pos 2169
+      pos 2531
+      pos 2802
+      pos 2821
+      pos 2843
+      pos 3070
+      pos 3089
+  term added
+    doc 0
+      freq 1
+      pos 3349
+  term addition
+    doc 0
+      freq 3
+      pos 2657
+      pos 2916
+      pos 2963
+  term additional
+    doc 0
+      freq 5
+      pos 1328
+      pos 1633
+      pos 2187
+      pos 2618
+      pos 2864
+  term addresses
+    doc 0
+      freq 2
+      pos 858
+      pos 3839
+  term adds
+    doc 0
+      freq 1
+      pos 1327
+  term against
+    doc 0
+      freq 1
+      pos 1398
+  term alexander
+    doc 0
+      freq 1
+      pos 3829
+  term all
+    doc 0
+      freq 4
+      pos 185
+      pos 1159
+      pos 1419
+      pos 1704
+  term allocate
+    doc 0
+      freq 3
+      pos 2692
+      pos 2951
+      pos 3009
+  term allocating
+    doc 0
+      freq 4
+      pos 976
+      pos 985
+      pos 997
+      pos 1007
+  term allocation
+    doc 0
+      freq 83
+      pos 23
+      pos 45
+      pos 53
+      pos 67
+      pos 276
+      pos 356
+      pos 647
+      pos 922
+      pos 934
+      pos 953
+      pos 971
+      pos 983
+      pos 995
+      pos 1004
+      pos 1025
+      pos 1043
+      pos 1050
+      pos 1064
+      pos 1087
+      pos 1090
+      pos 1358
+      pos 1363
+      pos 1366
+      pos 1379
+      pos 1391
+      pos 1400
+      pos 1409
+      pos 1434
+      pos 1490
+      pos 1510
+      pos 1517
+      pos 1530
+      pos 1661
+      pos 1678
+      pos 1696
+      pos 1699
+      pos 1731
+      pos 1798
+      pos 1813
+      pos 1817
+      pos 1848
+      pos 1852
+      pos 1886
+      pos 1914
+      pos 1988
+      pos 2021
+      pos 2073
+      pos 2099
+      pos 2226
+      pos 2277
+      pos 2289
+      pos 2311
+      pos 2317
+      pos 2427
+      pos 2556
+      pos 2697
+      pos 2725
+      pos 2743
+      pos 2892
+      pos 2959
+      pos 2980
+      pos 3015
+      pos 3112
+      pos 3126
+      pos 3180
+      pos 3199
+      pos 3212
+      pos 3226
+      pos 3265
+      pos 3367
+      pos 3445
+      pos 3459
+      pos 3471
+      pos 3492
+      pos 3496
+      pos 3520
+      pos 3535
+      pos 3539
+      pos 3553
+      pos 3574
+      pos 3592
+      pos 3611
+      pos 3737
+  term allocation.example
+    doc 0
+      freq 5
+      pos 1722
+      pos 2005
+      pos 2012
+      pos 2103
+      pos 2354
+  term allocation2.example
+    doc 0
+      freq 2
+      pos 2007
+      pos 2014
+  term allocation2.example:
+    doc 0
+      freq 1
+      pos 2108
+  term allocationtoken
+    doc 0
+      freq 2
+      pos 3295
+      pos 3318
+  term allocationtoken:info
+    doc 0
+      freq 1
+      pos 2350
+  term allows
+    doc 0
+      freq 4
+      pos 1667
+      pos 2210
+      pos 2646
+      pos 2905
+  term along
+    doc 0
+      freq 2
+      pos 2230
+      pos 2404
+  term america
+    doc 0
+      freq 1
+      pos 3853
+  term an
+    doc 0
+      freq 69
+      pos 36
+      pos 44
+      pos 92
+      pos 888
+      pos 905
+      pos 921
+      pos 963
+      pos 970
+      pos 993
+      pos 1008
+      pos 1024
+      pos 1049
+      pos 1096
+      pos 1109
+      pos 1450
+      pos 1485
+      pos 1519
+      pos 1554
+      pos 1606
+      pos 1617
+      pos 1642
+      pos 1674
+      pos 1677
+      pos 1689
+      pos 1716
+      pos 1809
+      pos 1812
+      pos 1844
+      pos 1847
+      pos 1880
+      pos 1885
+      pos 1921
+      pos 1995
+      pos 2080
+      pos 2196
+      pos 2218
+      pos 2248
+      pos 2296
+      pos 2327
+      pos 2344
+      pos 2401
+      pos 2434
+      pos 2574
+      pos 2577
+      pos 2582
+      pos 2585
+      pos 2594
+      pos 2609
+      pos 2627
+      pos 2651
+      pos 2654
+      pos 2665
+      pos 2709
+      pos 2732
+      pos 2742
+      pos 2873
+      pos 2913
+      pos 2924
+      pos 2994
+      pos 3004
+      pos 3314
+      pos 3491
+      pos 3495
+      pos 3519
+      pos 3538
+      pos 3573
+      pos 3587
+      pos 3591
+      pos 3610
+  term and
+    doc 0
+      freq 46
+      pos 49
+      pos 84
+      pos 122
+      pos 158
+      pos 177
+      pos 195
+      pos 226
+      pos 255
+      pos 951
+      pos 1006
+      pos 1057
+      pos 1082
+      pos 1136
+      pos 1153
+      pos 1173
+      pos 1204
+      pos 1214
+      pos 1227
+      pos 1252
+      pos 1260
+      pos 1264
+      pos 1492
+      pos 1505
+      pos 1578
+      pos 1619
+      pos 1815
+      pos 1850
+      pos 2006
+      pos 2013
+      pos 2602
+      pos 2691
+      pos 2950
+      pos 2965
+      pos 3154
+      pos 3170
+      pos 3232
+      pos 3283
+      pos 3416
+      pos 3464
+      pos 3488
+      pos 3512
+      pos 3533
+      pos 3750
+      pos 3790
+      pos 3804
+      pos 3835
+  term any
+    doc 0
+      freq 10
+      pos 156
+      pos 2170
+      pos 2532
+      pos 2803
+      pos 2822
+      pos 2844
+      pos 3071
+      pos 3090
+      pos 3387
+      pos 3407
+  term appear
+    doc 0
+      freq 1
+      pos 1157
+  term applied
+    doc 0
+      freq 1
+      pos 1702
+  term apply
+    doc 0
+      freq 5
+      pos 1442
+      pos 1820
+      pos 1856
+      pos 2701
+      pos 3430
+  term approved
+    doc 0
+      freq 1
+      pos 125
+  term are
+    doc 0
+      freq 12
+      pos 256
+      pos 1141
+      pos 1220
+      pos 1228
+      pos 1307
+      pos 1346
+      pos 1496
+      pos 1500
+      pos 2017
+      pos 3157
+      pos 3164
+      pos 3482
+  term as
+    doc 0
+      freq 21
+      pos 57
+      pos 181
+      pos 221
+      pos 245
+      pos 260
+      pos 924
+      pos 1145
+      pos 1161
+      pos 1275
+      pos 1425
+      pos 1427
+      pos 1680
+      pos 1832
+      pos 1868
+      pos 1895
+      pos 2253
+      pos 3300
+      pos 3324
+      pos 3360
+      pos 3434
+      pos 3452
+  term assigned
+    doc 0
+      freq 1
+      pos 1483
+  term assigning
+    doc 0
+      freq 1
+      pos 1546
+  term assigns
+    doc 0
+      freq 1
+      pos 958
+  term associated
+    doc 0
+      freq 6
+      pos 1472
+      pos 1615
+      pos 2216
+      pos 2319
+      pos 2607
+      pos 2956
+  term at
+    doc 0
+      freq 2
+      pos 168
+      pos 3510
+  term attribute
+    doc 0
+      freq 4
+      pos 1297
+      pos 1837
+      pos 1873
+      pos 1900
+  term attributes
+    doc 0
+      freq 2
+      pos 331
+      pos 1324
+  term attributes.
+    doc 0
+      freq 1
+      pos 1321
+  term auction
+    doc 0
+      freq 1
+      pos 994
+  term august
+    doc 0
+      freq 2
+      pos 3684
+      pos 3703
+  term australia
+    doc 0
+      freq 1
+      pos 3868
+  term authenticity
+    doc 0
+      freq 1
+      pos 3601
+  term authorization
+    doc 0
+      freq 6
+      pos 1457
+      pos 1480
+      pos 1494
+      pos 2335
+      pos 2955
+      pos 2970
+  term authorize
+    doc 0
+      freq 2
+      pos 1407
+      pos 1545
+  term authorized
+    doc 0
+      freq 6
+      pos 1097
+      pos 2221
+      pos 2273
+      pos 2307
+      pos 2688
+      pos 2947
+  term authorizes
+    doc 0
+      freq 2
+      pos 61
+      pos 928
+  term authors
+    doc 0
+      freq 1
+      pos 3780
+  term authors'
+    doc 0
+      freq 2
+      pos 857
+      pos 3838
+  term authors.
+    doc 0
+      freq 1
+      pos 184
+  term automated
+    doc 0
+      freq 1
+      pos 3146
+  term avail="0">allocation2.example</domain:name>
+    doc 0
+      freq 1
+      pos 2143
+  term avail="1">allocation.example</domain:name>
+    doc 0
+      freq 2
+      pos 1961
+      pos 2136
+  term availability
+    doc 0
+      freq 6
+      pos 1672
+      pos 1788
+      pos 1830
+      pos 1866
+      pos 1893
+      pos 2010
+  term available
+    doc 0
+      freq 3
+      pos 141
+      pos 1833
+      pos 1896
+  term available:
+    doc 0
+      freq 1
+      pos 1806
+  term b.,
+    doc 0
+      freq 1
+      pos 3708
+  term base16,
+    doc 0
+      freq 1
+      pos 3748
+  term base32,
+    doc 0
+      freq 1
+      pos 3749
+  term base64
+    doc 0
+      freq 2
+      pos 3621
+      pos 3751
+  term base="anytype"
+    doc 0
+      freq 1
+      pos 3220
+  term base="token">
+    doc 0
+      freq 1
+      pos 3243
+  term based
+    doc 0
+      freq 8
+      pos 965
+      pos 979
+      pos 991
+      pos 1000
+      pos 1022
+      pos 1794
+      pos 2018
+      pos 3585
+  term bcp
+    doc 0
+      freq 5
+      pos 193
+      pos 1148
+      pos 3646
+      pos 3662
+      pos 3719
+  term be
+    doc 0
+      freq 16
+      pos 166
+      pos 1093
+      pos 1143
+      pos 1180
+      pos 1581
+      pos 1609
+      pos 1692
+      pos 2687
+      pos 2946
+      pos 3474
+      pos 3499
+      pos 3508
+      pos 3514
+      pos 3523
+      pos 3529
+      pos 3618
+  term been
+    doc 0
+      freq 5
+      pos 124
+      pos 3298
+      pos 3322
+      pos 3348
+      pos 3811
+  term begin
+    doc 0
+      freq 2
+      pos 3153
+      pos 3184
+  term beginning
+    doc 0
+      freq 1
+      pos 3169
+  term ben
+    doc 0
+      freq 1
+      pos 3819
+  term benjamin
+    doc 0
+      freq 1
+      pos 3823
+  term between
+    doc 0
+      freq 1
+      pos 3461
+  term beyond
+    doc 0
+      freq 1
+      pos 3410
+  term bluemont
+    doc 0
+      freq 1
+      pos 3845
+  term both
+    doc 0
+      freq 1
+      pos 1497
+  term bradner,
+    doc 0
+      freq 1
+      pos 3634
+  term bsd
+    doc 0
+      freq 2
+      pos 242
+      pos 265
+  term but
+    doc 0
+      freq 5
+      pos 1245
+      pos 1499
+      pos 1538
+      pos 2104
+      pos 2313
+  term by
+    doc 0
+      freq 18
+      pos 128
+      pos 1013
+      pos 1017
+      pos 1069
+      pos 1200
+      pos 1209
+      pos 1403
+      pos 1535
+      pos 1541
+      pos 2236
+      pos 3413
+      pos 3420
+      pos 3503
+      pos 3557
+      pos 3569
+      pos 3604
+      pos 3801
+      pos 3818
+  term c:
+    doc 0
+      freq 89
+      pos 1741
+      pos 1743
+      pos 1745
+      pos 1747
+      pos 1749
+      pos 1751
+      pos 1753
+      pos 1755
+      pos 1757
+      pos 1759
+      pos 1761
+      pos 1763
+      pos 1765
+      pos 1767
+      pos 1769
+      pos 1771
+      pos 2029
+      pos 2031
+      pos 2033
+      pos 2035
+      pos 2037
+      pos 2039
+      pos 2041
+      pos 2043
+      pos 2045
+      pos 2047
+      pos 2049
+      pos 2051
+      pos 2053
+      pos 2055
+      pos 2057
+      pos 2059
+      pos 2061
+      pos 2363
+      pos 2365
+      pos 2367
+      pos 2369
+      pos 2371
+      pos 2373
+      pos 2375
+      pos 2377
+      pos 2379
+      pos 2381
+      pos 2383
+      pos 2385
+      pos 2387
+      pos 2389
+      pos 2751
+      pos 2753
+      pos 2755
+      pos 2757
+      pos 2759
+      pos 2761
+      pos 2763
+      pos 2766
+      pos 2769
+      pos 2771
+      pos 2773
+      pos 2775
+      pos 2777
+      pos 2779
+      pos 2781
+      pos 2783
+      pos 2785
+      pos 2787
+      pos 2789
+      pos 2791
+      pos 2793
+      pos 2795
+      pos 3023
+      pos 3025
+      pos 3028
+      pos 3030
+      pos 3032
+      pos 3034
+      pos 3037
+      pos 3039
+      pos 3041
+      pos 3043
+      pos 3045
+      pos 3047
+      pos 3049
+      pos 3051
+      pos 3053
+      pos 3055
+      pos 3057
+      pos 3059
+      pos 3061
+      pos 3063
+  term c:</epp>
+    doc 0
+      freq 5
+      pos 1773
+      pos 2063
+      pos 2391
+      pos 2797
+      pos 3065
+  term c:<?xml
+    doc 0
+      freq 5
+      pos 1735
+      pos 2024
+      pos 2357
+      pos 2745
+      pos 3017
+  term c:<epp
+    doc 0
+      freq 5
+      pos 1739
+      pos 2027
+      pos 2361
+      pos 2749
+      pos 3021
+  term campbell,
+    doc 0
+      freq 1
+      pos 3820
+  term can
+    doc 0
+      freq 4
+      pos 1580
+      pos 1608
+      pos 1686
+      pos 1691
+  term capitals,
+    doc 0
+      freq 1
+      pos 1160
+  term carefully,
+    doc 0
+      freq 1
+      pos 220
+  term case
+    doc 0
+      freq 2
+      pos 1166
+      pos 1185
+  term cases
+    doc 0
+      freq 1
+      pos 1800
+  term category:
+    doc 0
+      freq 1
+      pos 13
+  term change
+    doc 0
+      freq 1
+      pos 2605
+  term changes,
+    doc 0
+      freq 1
+      pos 2601
+  term character
+    doc 0
+      freq 1
+      pos 1184
+  term check
+    doc 0
+      freq 2
+      pos 1670
+      pos 1687
+  term child
+    doc 0
+      freq 2
+      pos 2680
+      pos 2939
+  term client
+    doc 0
+      freq 18
+      pos 63
+      pos 930
+      pos 961
+      pos 1021
+      pos 1098
+      pos 1104
+      pos 1203
+      pos 1405
+      pos 1537
+      pos 1550
+      pos 2212
+      pos 2270
+      pos 2305
+      pos 2648
+      pos 2685
+      pos 2907
+      pos 2944
+      pos 3463
+  term client;
+    doc 0
+      freq 1
+      pos 3505
+  term clients
+    doc 0
+      freq 4
+      pos 1047
+      pos 1668
+      pos 1685
+      pos 2222
+  term code
+    doc 0
+      freq 6
+      pos 233
+      pos 1454
+      pos 2300
+      pos 2331
+      pos 2713
+      pos 2998
+  term code.
+    doc 0
+      freq 1
+      pos 3589
+  term code="1000">
+    doc 0
+      freq 3
+      pos 1943
+      pos 2118
+      pos 2453
+  term command
+    doc 0
+      freq 41
+      pos 381
+      pos 432
+      pos 454
+      pos 477
+      pos 516
+      pos 537
+      pos 558
+      pos 580
+      pos 600
+      pos 1569
+      pos 1629
+      pos 1640
+      pos 1719
+      pos 1929
+      pos 1998
+      pos 2092
+      pos 2183
+      pos 2194
+      pos 2209
+      pos 2347
+      pos 2526
+      pos 2539
+      pos 2614
+      pos 2625
+      pos 2640
+      pos 2661
+      pos 2676
+      pos 2735
+      pos 2816
+      pos 2828
+      pos 2838
+      pos 2850
+      pos 2860
+      pos 2871
+      pos 2899
+      pos 2920
+      pos 2935
+      pos 3007
+      pos 3084
+      pos 3096
+      pos 3209
+  term command.
+    doc 0
+      freq 5
+      pos 1033
+      pos 1112
+      pos 1712
+      pos 2243
+      pos 2977
+  term commands
+    doc 0
+      freq 9
+      pos 408
+      pos 494
+      pos 1081
+      pos 1424
+      pos 1593
+      pos 1597
+      pos 2563
+      pos 2567
+      pos 3231
+  term commands,
+    doc 0
+      freq 2
+      pos 81
+      pos 948
+  term commands.
+    doc 0
+      freq 1
+      pos 51
+  term comments:
+    doc 0
+      freq 1
+      pos 9
+  term community.
+    doc 0
+      freq 1
+      pos 116
+  term complete
+    doc 0
+      freq 1
+      pos 3137
+  term completed
+    doc 0
+      freq 3
+      pos 1947
+      pos 2122
+      pos 2456
+  term components
+    doc 0
+      freq 1
+      pos 234
+  term concept
+    doc 0
+      freq 1
+      pos 3786
+  term conduit
+    doc 0
+      freq 1
+      pos 3454
+  term confirm
+    doc 0
+      freq 1
+      pos 3599
+  term conforming
+    doc 0
+      freq 2
+      pos 1192
+      pos 3286
+  term consensus
+    doc 0
+      freq 1
+      pos 112
+  term considerations
+    doc 0
+      freq 7
+      pos 666
+      pos 739
+      pos 1292
+      pos 3271
+      pos 3397
+      pos 3424
+      pos 3484
+  term considered
+    doc 0
+      freq 1
+      pos 3500
+  term contact:
+    doc 0
+      freq 2
+      pos 3305
+      pos 3329
+  term contain
+    doc 0
+      freq 2
+      pos 2678
+      pos 2937
+  term contents
+    doc 0
+      freq 1
+      pos 282
+  term conventions
+    doc 0
+      freq 2
+      pos 311
+      pos 1114
+  term copyright
+    doc 0
+      freq 2
+      pos 170
+      pos 172
+  term core
+    doc 0
+      freq 1
+      pos 1586
+  term create
+    doc 0
+      freq 4
+      pos 2573
+      pos 2650
+      pos 2690
+      pos 2737
+  term created
+    doc 0
+      freq 1
+      pos 1693
+  term created.
+    doc 0
+      freq 1
+      pos 1488
+  term credential
+    doc 0
+      freq 2
+      pos 59
+      pos 926
+  term credential.
+    doc 0
+      freq 1
+      pos 973
+  term credentials
+    doc 0
+      freq 1
+      pos 1498
+  term current
+    doc 0
+      freq 1
+      pos 151
+  term data
+    doc 0
+      freq 1
+      pos 3752
+  term date
+    doc 0
+      freq 1
+      pos 210
+  term defined
+    doc 0
+      freq 3
+      pos 1463
+      pos 2972
+      pos 3475
+  term defines
+    doc 0
+      freq 4
+      pos 1632
+      pos 2186
+      pos 2617
+      pos 2863
+  term definition
+    doc 0
+      freq 2
+      pos 3468
+      pos 3487
+  term delete
+    doc 0
+      freq 1
+      pos 2581
+  term depend
+    doc 0
+      freq 1
+      pos 1249
+  term describe
+    doc 0
+      freq 2
+      pos 223
+      pos 3280
+  term described
+    doc 0
+      freq 20
+      pos 246
+      pos 261
+      pos 1146
+      pos 1347
+      pos 1681
+      pos 2177
+      pos 2414
+      pos 2544
+      pos 2663
+      pos 2810
+      pos 2832
+      pos 2854
+      pos 2922
+      pos 3078
+      pos 3100
+      pos 3291
+      pos 3361
+      pos 3400
+      pos 3412
+      pos 3425
+  term describes
+    doc 0
+      freq 2
+      pos 35
+      pos 887
+  term description
+    doc 0
+      freq 1
+      pos 1573
+  term detailed
+    doc 0
+      freq 1
+      pos 1572
+  term details
+    doc 0
+      freq 1
+      pos 1317
+  term determine
+    doc 0
+      freq 1
+      pos 1604
+  term determines
+    doc 0
+      freq 1
+      pos 1060
+  term develop
+    doc 0
+      freq 1
+      pos 1190
+  term different
+    doc 0
+      freq 3
+      pos 1019
+      pos 1503
+      pos 1507
+  term digital
+    doc 0
+      freq 1
+      pos 3596
+  term disclosure:
+    doc 0
+      freq 1
+      pos 3389
+  term do
+    doc 0
+      freq 1
+      pos 3311
+  term document
+    doc 0
+      freq 16
+      pos 34
+      pos 98
+      pos 183
+      pos 189
+      pos 238
+      pos 315
+      pos 886
+      pos 1118
+      pos 1140
+      pos 1178
+      pos 3276
+      pos 3376
+      pos 3403
+      pos 3789
+      pos 3800
+      pos 3815
+  term document,
+    doc 0
+      freq 1
+      pos 155
+  term document.
+    doc 0
+      freq 4
+      pos 96
+      pos 215
+      pos 232
+      pos 3339
+  term documents
+    doc 0
+      freq 2
+      pos 204
+      pos 219
+  term documents.
+    doc 0
+      freq 1
+      pos 1268
+  term does
+    doc 0
+      freq 15
+      pos 1440
+      pos 1819
+      pos 1854
+      pos 1882
+      pos 2105
+      pos 2167
+      pos 2529
+      pos 2699
+      pos 2800
+      pos 2819
+      pos 2841
+      pos 2966
+      pos 3068
+      pos 3087
+      pos 3404
+  term doi
+    doc 0
+      freq 7
+      pos 3650
+      pos 3666
+      pos 3682
+      pos 3701
+      pos 3723
+      pos 3756
+      pos 3773
+  term domain
+    doc 0
+      freq 16
+      pos 915
+      pos 988
+      pos 1010
+      pos 1338
+      pos 1467
+      pos 1723
+      pos 1924
+      pos 2008
+      pos 2015
+      pos 2083
+      pos 2087
+      pos 2355
+      pos 2437
+      pos 2739
+      pos 3011
+      pos 3694
+  term domain-object
+    doc 0
+      freq 2
+      pos 1296
+      pos 1320
+  term draft
+    doc 0
+      freq 1
+      pos 3796
+  term each
+    doc 0
+      freq 1
+      pos 1394
+  term effect
+    doc 0
+      freq 1
+      pos 207
+  term efforts
+    doc 0
+      freq 1
+      pos 3792
+  term element
+    doc 0
+      freq 12
+      pos 1225
+      pos 1415
+      pos 1557
+      pos 2240
+      pos 2246
+      pos 2250
+      pos 2263
+      pos 2403
+      pos 2412
+      pos 2682
+      pos 2941
+      pos 3205
+  term elementformdefault="qualified">
+    doc 0
+      freq 1
+      pos 3192
+  term elements
+    doc 0
+      freq 15
+      pos 1329
+      pos 1345
+      pos 1634
+      pos 2171
+      pos 2188
+      pos 2533
+      pos 2619
+      pos 2662
+      pos 2804
+      pos 2823
+      pos 2845
+      pos 2865
+      pos 2921
+      pos 3072
+      pos 3091
+  term email:
+    doc 0
+      freq 2
+      pos 3854
+      pos 3869
+  term employ
+    doc 0
+      freq 1
+      pos 1254
+  term empty
+    doc 0
+      freq 1
+      pos 2249
+  term encoded
+    doc 0
+      freq 1
+      pos 3619
+  term encoding="utf-8"
+    doc 0
+      freq 5
+      pos 1737
+      pos 2359
+      pos 2445
+      pos 2747
+      pos 3019
+  term encoding="utf-8"?>
+    doc 0
+      freq 4
+      pos 1936
+      pos 2026
+      pos 2111
+      pos 3187
+  term encodings",
+    doc 0
+      freq 1
+      pos 3753
+  term end
+    doc 0
+      freq 3
+      pos 3155
+      pos 3250
+      pos 3255
+  term ending
+    doc 0
+      freq 1
+      pos 3171
+  term engineering
+    doc 0
+      freq 3
+      pos 1
+      pos 105
+      pos 131
+  term entry
+    doc 0
+      freq 1
+      pos 3346
+  term epp
+    doc 0
+      freq 64
+      pos 79
+      pos 380
+      pos 406
+      pos 430
+      pos 452
+      pos 474
+      pos 492
+      pos 514
+      pos 535
+      pos 556
+      pos 578
+      pos 598
+      pos 716
+      pos 908
+      pos 914
+      pos 946
+      pos 1079
+      pos 1110
+      pos 1331
+      pos 1337
+      pos 1423
+      pos 1451
+      pos 1466
+      pos 1568
+      pos 1576
+      pos 1585
+      pos 1591
+      pos 1594
+      pos 1627
+      pos 1638
+      pos 1710
+      pos 2174
+      pos 2181
+      pos 2192
+      pos 2207
+      pos 2297
+      pos 2328
+      pos 2408
+      pos 2523
+      pos 2536
+      pos 2561
+      pos 2564
+      pos 2612
+      pos 2623
+      pos 2638
+      pos 2660
+      pos 2710
+      pos 2807
+      pos 2814
+      pos 2826
+      pos 2836
+      pos 2848
+      pos 2858
+      pos 2869
+      pos 2897
+      pos 2919
+      pos 2995
+      pos 3075
+      pos 3082
+      pos 3094
+      pos 3125
+      pos 3149
+      pos 3341
+      pos 3414
+  term epp.
+    doc 0
+      freq 1
+      pos 3421
+  term eric
+    doc 0
+      freq 1
+      pos 3833
+  term errata,
+    doc 0
+      freq 1
+      pos 157
+  term error
+    doc 0
+      freq 5
+      pos 1452
+      pos 2298
+      pos 2329
+      pos 2711
+      pos 2996
+  term exact
+    doc 0
+      freq 1
+      pos 1375
+  term example
+    doc 0
+      freq 9
+      pos 1555
+      pos 1717
+      pos 1922
+      pos 1996
+      pos 2081
+      pos 2345
+      pos 2435
+      pos 2733
+      pos 3005
+  term examples
+    doc 0
+      freq 4
+      pos 974
+      pos 1174
+      pos 1219
+      pos 1306
+  term examples,
+    doc 0
+      freq 1
+      pos 1195
+  term examples.
+    doc 0
+      freq 1
+      pos 1281
+  term existing
+    doc 0
+      freq 2
+      pos 1009
+      pos 2219
+  term expiry
+    doc 0
+      freq 1
+      pos 3550
+  term expiry,
+    doc 0
+      freq 1
+      pos 3566
+  term extend
+    doc 0
+      freq 5
+      pos 1636
+      pos 2190
+      pos 2589
+      pos 2621
+      pos 2867
+  term extensible
+    doc 0
+      freq 7
+      pos 28
+      pos 37
+      pos 896
+      pos 3195
+      pos 3355
+      pos 3372
+      pos 3768
+  term extension
+    doc 0
+      freq 27
+      pos 25
+      pos 41
+      pos 649
+      pos 717
+      pos 889
+      pos 906
+      pos 1326
+      pos 1631
+      pos 1666
+      pos 1728
+      pos 2002
+      pos 2166
+      pos 2185
+      pos 2351
+      pos 2528
+      pos 2616
+      pos 2799
+      pos 2818
+      pos 2840
+      pos 2862
+      pos 3067
+      pos 3086
+      pos 3128
+      pos 3182
+      pos 3201
+      pos 3342
+      pos 3369
+  term extension,
+    doc 0
+      freq 1
+      pos 2096
+  term extension:
+    doc 0
+      freq 3
+      pos 1933
+      pos 2442
+      pos 3366
+  term extensions
+    doc 0
+      freq 1
+      pos 3352
+  term extracted
+    doc 0
+      freq 1
+      pos 235
+  term facilitate
+    doc 0
+      freq 2
+      pos 1476
+      pos 1515
+  term february
+    doc 0
+      freq 1
+      pos 3775
+  term feedback
+    doc 0
+      freq 1
+      pos 162
+  term feher
+    doc 0
+      freq 19
+      pos 17
+      pos 269
+      pos 1036
+      pos 1351
+      pos 1654
+      pos 1907
+      pos 1981
+      pos 2066
+      pos 2282
+      pos 2420
+      pos 2549
+      pos 2718
+      pos 2885
+      pos 3105
+      pos 3258
+      pos 3438
+      pos 3730
+      pos 3859
+      pos 3875
+  term five
+    doc 0
+      freq 1
+      pos 2566
+  term follow
+    doc 0
+      freq 1
+      pos 1289
+  term following
+    doc 0
+      freq 11
+      pos 1714
+      pos 1797
+      pos 1919
+      pos 1993
+      pos 2078
+      pos 2342
+      pos 2432
+      pos 2730
+      pos 3002
+      pos 3345
+      pos 3481
+  term follows.
+    doc 0
+      freq 2
+      pos 3301
+      pos 3325
+  term for
+    doc 0
+      freq 30
+      pos 8
+      pos 26
+      pos 42
+      pos 126
+      pos 891
+      pos 1055
+      pos 1099
+      pos 1241
+      pos 1309
+      pos 1316
+      pos 1393
+      pos 1418
+      pos 1502
+      pos 1720
+      pos 1926
+      pos 2003
+      pos 2085
+      pos 2352
+      pos 2683
+      pos 2942
+      pos 2973
+      pos 2987
+      pos 3145
+      pos 3175
+      pos 3353
+      pos 3370
+      pos 3455
+      pos 3638
+      pos 3766
+      pos 3787
+  term force
+    doc 0
+      freq 2
+      pos 3
+      pos 107
+  term form
+    doc 0
+      freq 1
+      pos 3548
+  term formal
+    doc 0
+      freq 3
+      pos 619
+      pos 3117
+      pos 3131
+  term format
+    doc 0
+      freq 1
+      pos 1376
+  term found
+    doc 0
+      freq 1
+      pos 1582
+  term founders
+    doc 0
+      freq 1
+      pos 1003
+  term from
+    doc 0
+      freq 3
+      pos 72
+      pos 236
+      pos 939
+  term further
+    doc 0
+      freq 1
+      pos 135
+  term generated
+    doc 0
+      freq 3
+      pos 3556
+      pos 3568
+      pos 3603
+  term get
+    doc 0
+      freq 1
+      pos 3211
+  term gould
+    doc 0
+      freq 19
+      pos 6
+      pos 267
+      pos 1034
+      pos 1349
+      pos 1652
+      pos 1905
+      pos 1979
+      pos 2064
+      pos 2280
+      pos 2418
+      pos 2547
+      pos 2716
+      pos 2883
+      pos 3103
+      pos 3256
+      pos 3436
+      pos 3728
+      pos 3841
+      pos 3873
+  term group
+    doc 0
+      freq 1
+      pos 133
+  term has
+    doc 0
+      freq 5
+      pos 118
+      pos 123
+      pos 3297
+      pos 3321
+      pos 3347
+  term have
+    doc 0
+      freq 3
+      pos 1389
+      pos 3542
+      pos 3810
+  term held
+    doc 0
+      freq 1
+      pos 1012
+  term here
+    doc 0
+      freq 1
+      pos 3134
+  term here.
+    doc 0
+      freq 2
+      pos 1163
+      pos 1348
+  term here:
+    doc 0
+      freq 1
+      pos 3123
+  term hollenbeck,
+    doc 0
+      freq 4
+      pos 3672
+      pos 3688
+      pos 3762
+      pos 3822
+  term how
+    doc 0
+      freq 1
+      pos 159
+  term http://www.neustar.biz
+    doc 0
+      freq 1
+      pos 3872
+  term http://www.verisign.com
+    doc 0
+      freq 1
+      pos 3857
+  term https://www.rfc-editor.org/info/rfc8495.
+    doc 0
+      freq 1
+      pos 169
+  term iana
+    doc 0
+      freq 2
+      pos 665
+      pos 3270
+  term identified
+    doc 0
+      freq 1
+      pos 180
+  term iesg
+    doc 0
+      freq 3
+      pos 3306
+      pos 3330
+      pos 3384
+  term ietf
+    doc 0
+      freq 5
+      pos 115
+      pos 175
+      pos 197
+      pos 203
+      pos 3659
+  term ietf@feherfamily.org
+    doc 0
+      freq 1
+      pos 3870
+  term if
+    doc 0
+      freq 17
+      pos 1061
+      pos 1431
+      pos 1605
+      pos 1688
+      pos 1774
+      pos 1808
+      pos 1843
+      pos 1879
+      pos 2268
+      pos 2303
+      pos 2392
+      pos 2695
+      pos 2978
+      pos 3555
+      pos 3567
+      pos 3582
+      pos 3602
+  term illustrate
+    doc 0
+      freq 1
+      pos 1224
+  term illustration
+    doc 0
+      freq 1
+      pos 1310
+  term implementation.
+    doc 0
+      freq 1
+      pos 1193
+  term implementations
+    doc 0
+      freq 1
+      pos 1246
+  term in
+    doc 0
+      freq 57
+      pos 47
+      pos 142
+      pos 206
+      pos 247
+      pos 262
+      pos 313
+      pos 1116
+      pos 1138
+      pos 1147
+      pos 1158
+      pos 1176
+      pos 1182
+      pos 1187
+      pos 1194
+      pos 1217
+      pos 1231
+      pos 1279
+      pos 1304
+      pos 1464
+      pos 1506
+      pos 1583
+      pos 1650
+      pos 1682
+      pos 1708
+      pos 2089
+      pos 2178
+      pos 2204
+      pos 2241
+      pos 2264
+      pos 2415
+      pos 2545
+      pos 2635
+      pos 2656
+      pos 2664
+      pos 2673
+      pos 2811
+      pos 2833
+      pos 2855
+      pos 2881
+      pos 2915
+      pos 2923
+      pos 2932
+      pos 2962
+      pos 3079
+      pos 3101
+      pos 3207
+      pos 3229
+      pos 3292
+      pos 3362
+      pos 3401
+      pos 3426
+      pos 3485
+      pos 3516
+      pos 3551
+      pos 3640
+      pos 3714
+      pos 3793
+  term inc.
+    doc 0
+      freq 2
+      pos 12
+      pos 3843
+  term include
+    doc 0
+      freq 2
+      pos 240
+      pos 975
+  term included
+    doc 0
+      freq 1
+      pos 1707
+  term including
+    doc 0
+      freq 4
+      pos 43
+      pos 82
+      pos 949
+      pos 1299
+  term incorporated
+    doc 0
+      freq 1
+      pos 3812
+  term indentation
+    doc 0
+      freq 1
+      pos 1213
+  term indicate
+    doc 0
+      freq 1
+      pos 3643
+  term info
+    doc 0
+      freq 4
+      pos 1429
+      pos 2266
+      pos 3208
+      pos 3233
+  term information
+    doc 0
+      freq 9
+      pos 136
+      pos 148
+      pos 1481
+      pos 1495
+      pos 1614
+      pos 2215
+      pos 2235
+      pos 2606
+      pos 3502
+  term information,
+    doc 0
+      freq 1
+      pos 1458
+  term information.
+    doc 0
+      freq 1
+      pos 1625
+  term information:
+    doc 0
+      freq 1
+      pos 1601
+  term informative
+    doc 0
+      freq 2
+      pos 811
+      pos 3742
+  term initial
+    doc 0
+      freq 2
+      pos 1548
+      pos 3795
+  term instance
+    doc 0
+      freq 3
+      pos 2575
+      pos 2583
+      pos 2652
+  term instances.
+    doc 0
+      freq 1
+      pos 3151
+  term instead
+    doc 0
+      freq 2
+      pos 1253
+      pos 1521
+  term internet
+    doc 0
+      freq 5
+      pos 0
+      pos 93
+      pos 104
+      pos 130
+      pos 138
+  term interpret
+    doc 0
+      freq 1
+      pos 1263
+  term interpreted
+    doc 0
+      freq 2
+      pos 1144
+      pos 1181
+  term into
+    doc 0
+      freq 1
+      pos 3813
+  term introduction
+    doc 0
+      freq 2
+      pos 284
+      pos 884
+  term invalid
+    doc 0
+      freq 1
+      pos 2983
+  term ipr
+    doc 0
+      freq 1
+      pos 3388
+  term is
+    doc 0
+      freq 48
+      pos 55
+      pos 91
+      pos 99
+      pos 140
+      pos 190
+      pos 904
+      pos 954
+      pos 1028
+      pos 1066
+      pos 1073
+      pos 1165
+      pos 1239
+      pos 1273
+      pos 1368
+      pos 1381
+      pos 1416
+      pos 1462
+      pos 1471
+      pos 1482
+      pos 1487
+      pos 1512
+      pos 1532
+      pos 1539
+      pos 1701
+      pos 1715
+      pos 1804
+      pos 1838
+      pos 1874
+      pos 1901
+      pos 1920
+      pos 1994
+      pos 2079
+      pos 2247
+      pos 2271
+      pos 2306
+      pos 2315
+      pos 2336
+      pos 2343
+      pos 2413
+      pos 2433
+      pos 2731
+      pos 2961
+      pos 2982
+      pos 3003
+      pos 3121
+      pos 3135
+      pos 3584
+      pos 3614
+  term issn:
+    doc 0
+      freq 1
+      pos 18
+  term issues.
+    doc 0
+      freq 1
+      pos 3627
+  term it
+    doc 0
+      freq 9
+      pos 109
+      pos 117
+      pos 164
+      pos 1072
+      pos 1107
+      pos 1251
+      pos 3506
+      pos 3527
+      pos 3583
+  term its
+    doc 0
+      freq 1
+      pos 3600
+  term j.
+    doc 0
+      freq 1
+      pos 5
+  term james
+    doc 0
+      freq 1
+      pos 3840
+  term january
+    doc 0
+      freq 1
+      pos 3668
+  term jgould@verisign.com
+    doc 0
+      freq 1
+      pos 3855
+  term josefsson,
+    doc 0
+      freq 1
+      pos 3745
+  term k.
+    doc 0
+      freq 1
+      pos 16
+  term kaduk,
+    doc 0
+      freq 1
+      pos 3824
+  term kal
+    doc 0
+      freq 1
+      pos 3858
+  term key
+    doc 0
+      freq 2
+      pos 1120
+      pos 3717
+  term kuehlewind,
+    doc 0
+      freq 1
+      pos 3826
+  term kuhl,
+    doc 0
+      freq 1
+      pos 3828
+  term lang="en-us">command
+    doc 0
+      freq 2
+      pos 1946
+      pos 2121
+  term layers
+    doc 0
+      freq 1
+      pos 3418
+  term legal
+    doc 0
+      freq 2
+      pos 199
+      pos 253
+  term leiba,
+    doc 0
+      freq 1
+      pos 3707
+  term levels",
+    doc 0
+      freq 1
+      pos 3645
+  term leverage
+    doc 0
+      freq 1
+      pos 3595
+  term license
+    doc 0
+      freq 1
+      pos 243
+  term license.
+    doc 0
+      freq 1
+      pos 266
+  term life
+    doc 0
+      freq 1
+      pos 3545
+  term limited
+    doc 0
+      freq 1
+      pos 3544
+  term lines
+    doc 0
+      freq 2
+      pos 1198
+      pos 1207
+  term lowercase
+    doc 0
+      freq 1
+      pos 3713
+  term lvl
+    doc 0
+      freq 1
+      pos 3861
+  term m.,
+    doc 0
+      freq 1
+      pos 3657
+  term manage
+    doc 0
+      freq 1
+      pos 2598
+  term managed
+    doc 0
+      freq 1
+      pos 1534
+  term mapping
+    doc 0
+      freq 21
+      pos 382
+      pos 890
+      pos 917
+      pos 1340
+      pos 1469
+      pos 1570
+      pos 1644
+      pos 1648
+      pos 2198
+      pos 2202
+      pos 2629
+      pos 2633
+      pos 2667
+      pos 2671
+      pos 2875
+      pos 2879
+      pos 2926
+      pos 2930
+      pos 3143
+      pos 3399
+      pos 3450
+  term mapping",
+    doc 0
+      freq 1
+      pos 3696
+  term mapping,
+    doc 0
+      freq 1
+      pos 902
+  term mapping.
+    doc 0
+      freq 1
+      pos 3479
+  term mappings
+    doc 0
+      freq 2
+      pos 910
+      pos 1333
+  term march
+    doc 0
+      freq 1
+      pos 3652
+  term marker
+    doc 0
+      freq 1
+      pos 2255
+  term match
+    doc 0
+      freq 2
+      pos 1397
+      pos 2107
+  term matches
+    doc 0
+      freq 1
+      pos 2102
+  term may
+    doc 0
+      freq 6
+      pos 165
+      pos 1092
+      pos 1388
+      pos 1890
+      pos 2223
+      pos 3725
+  term mayrhofer,
+    doc 0
+      freq 1
+      pos 3830
+  term mealling,
+    doc 0
+      freq 1
+      pos 3656
+  term meaning
+    doc 0
+      freq 1
+      pos 3526
+  term mechanism
+    doc 0
+      freq 2
+      pos 2971
+      pos 3290
+  term melbourne,
+    doc 0
+      freq 1
+      pos 3865
+  term memo
+    doc 0
+      freq 1
+      pos 89
+  term mevzek,
+    doc 0
+      freq 1
+      pos 3832
+  term mirja
+    doc 0
+      freq 1
+      pos 3825
+  term mismatch</domain:reason>
+    doc 0
+      freq 1
+      pos 2147
+  term mitigate
+    doc 0
+      freq 1
+      pos 3624
+  term multiple
+    doc 0
+      freq 1
+      pos 2086
+  term must
+    doc 0
+      freq 13
+      pos 239
+      pos 1179
+      pos 1247
+      pos 1284
+      pos 1448
+      pos 1827
+      pos 2294
+      pos 2325
+      pos 2677
+      pos 2707
+      pos 2936
+      pos 2992
+      pos 3513
+  term name
+    doc 0
+      freq 8
+      pos 916
+      pos 989
+      pos 1011
+      pos 1339
+      pos 1468
+      pos 1724
+      pos 3364
+      pos 3695
+  term name:
+    doc 0
+      freq 1
+      pos 2356
+  term name="allocationtoken"
+    doc 0
+      freq 1
+      pos 3237
+  term name="allocationtokentype">
+    doc 0
+      freq 1
+      pos 3241
+  term name="info">
+    doc 0
+      freq 1
+      pos 3216
+  term names
+    doc 0
+      freq 3
+      pos 1706
+      pos 2016
+      pos 2088
+  term names.
+    doc 0
+      freq 1
+      pos 2009
+  term namespace
+    doc 0
+      freq 6
+      pos 691
+      pos 1236
+      pos 1243
+      pos 3274
+      pos 3296
+      pos 3309
+  term namespace-aware
+    doc 0
+      freq 1
+      pos 1257
+  term namespaces
+    doc 0
+      freq 1
+      pos 3282
+  term neustar
+    doc 0
+      freq 2
+      pos 20
+      pos 3860
+  term new
+    doc 0
+      freq 1
+      pos 1344
+  term no
+    doc 0
+      freq 1
+      pos 2316
+  term none
+    doc 0
+      freq 2
+      pos 3390
+      pos 3394
+  term none.
+    doc 0
+      freq 1
+      pos 3308
+  term normative
+    doc 0
+      freq 2
+      pos 789
+      pos 3631
+  term not
+    doc 0
+      freq 21
+      pos 1229
+      pos 1248
+      pos 1441
+      pos 1533
+      pos 1855
+      pos 1883
+      pos 2106
+      pos 2168
+      pos 2272
+      pos 2530
+      pos 2700
+      pos 2801
+      pos 2820
+      pos 2842
+      pos 2967
+      pos 2985
+      pos 3069
+      pos 3088
+      pos 3158
+      pos 3312
+      pos 3405
+  term not",
+    doc 0
+      freq 3
+      pos 1124
+      pos 1128
+      pos 1131
+  term note
+    doc 0
+      freq 1
+      pos 3167
+  term notes:
+    doc 0
+      freq 1
+      pos 3393
+  term notice
+    doc 0
+      freq 1
+      pos 171
+  term november
+    doc 0
+      freq 17
+      pos 21
+      pos 278
+      pos 1045
+      pos 1360
+      pos 1663
+      pos 1916
+      pos 1990
+      pos 2075
+      pos 2291
+      pos 2429
+      pos 2558
+      pos 2727
+      pos 2894
+      pos 3114
+      pos 3267
+      pos 3447
+      pos 3739
+  term object
+    doc 0
+      freq 32
+      pos 71
+      pos 330
+      pos 909
+      pos 938
+      pos 964
+      pos 1323
+      pos 1332
+      pos 1395
+      pos 1486
+      pos 1520
+      pos 1600
+      pos 1607
+      pos 1643
+      pos 1675
+      pos 1690
+      pos 1705
+      pos 1793
+      pos 1803
+      pos 1810
+      pos 1845
+      pos 1881
+      pos 2197
+      pos 2234
+      pos 2599
+      pos 2628
+      pos 2666
+      pos 2740
+      pos 2874
+      pos 2925
+      pos 3012
+      pos 3142
+      pos 3532
+  term object's
+    doc 0
+      freq 1
+      pos 2975
+  term object,
+    doc 0
+      freq 10
+      pos 1445
+      pos 1618
+      pos 1823
+      pos 1859
+      pos 2322
+      pos 2578
+      pos 2586
+      pos 2595
+      pos 2704
+      pos 2989
+  term object-transfer
+    doc 0
+      freq 1
+      pos 1623
+  term object.
+    doc 0
+      freq 9
+      pos 1412
+      pos 1528
+      pos 1553
+      pos 2220
+      pos 2610
+      pos 2655
+      pos 2694
+      pos 2914
+      pos 2953
+  term objects
+    doc 0
+      freq 2
+      pos 1084
+      pos 1474
+  term objects:
+    doc 0
+      freq 1
+      pos 2570
+  term obtained
+    doc 0
+      freq 1
+      pos 167
+  term october
+    doc 0
+      freq 1
+      pos 3758
+  term of
+    doc 0
+      freq 58
+      pos 68
+      pos 77
+      pos 87
+      pos 102
+      pos 113
+      pos 145
+      pos 153
+      pos 211
+      pos 213
+      pos 250
+      pos 281
+      pos 894
+      pos 935
+      pos 944
+      pos 962
+      pos 969
+      pos 1377
+      pos 1410
+      pos 1420
+      pos 1455
+      pos 1518
+      pos 1522
+      pos 1526
+      pos 1551
+      pos 1560
+      pos 1574
+      pos 1641
+      pos 1673
+      pos 1733
+      pos 1790
+      pos 2011
+      pos 2195
+      pos 2301
+      pos 2332
+      pos 2576
+      pos 2584
+      pos 2593
+      pos 2626
+      pos 2653
+      pos 2714
+      pos 2872
+      pos 2912
+      pos 2999
+      pos 3140
+      pos 3148
+      pos 3160
+      pos 3172
+      pos 3251
+      pos 3337
+      pos 3365
+      pos 3458
+      pos 3469
+      pos 3477
+      pos 3490
+      pos 3549
+      pos 3710
+      pos 3798
+      pos 3852
+  term on
+    doc 0
+      freq 13
+      pos 137
+      pos 163
+      pos 208
+      pos 966
+      pos 980
+      pos 992
+      pos 1001
+      pos 1023
+      pos 1250
+      pos 1318
+      pos 1795
+      pos 2019
+      pos 3586
+  term one
+    doc 0
+      freq 4
+      pos 76
+      pos 943
+      pos 1067
+      pos 3119
+  term only
+    doc 0
+      freq 3
+      pos 1154
+      pos 1222
+      pos 1342
+  term only.
+    doc 0
+      freq 1
+      pos 1312
+  term op="request">
+    doc 0
+      freq 1
+      pos 3027
+  term operation
+    doc 0
+      freq 2
+      pos 2644
+      pos 2903
+  term operation.
+    doc 0
+      freq 1
+      pos 3536
+  term operations.
+    doc 0
+      freq 1
+      pos 1478
+  term or
+    doc 0
+      freq 10
+      pos 1016
+      pos 1840
+      pos 1876
+      pos 1903
+      pos 2540
+      pos 2829
+      pos 2851
+      pos 2984
+      pos 3097
+      pos 3562
+  term order
+    doc 0
+      freq 1
+      pos 1188
+  term original
+    doc 0
+      freq 1
+      pos 3785
+  term other
+    doc 0
+      freq 2
+      pos 2233
+      pos 3428
+  term otherwise
+    doc 0
+      freq 1
+      pos 1805
+  term otherwise,
+    doc 0
+      freq 1
+      pos 1170
+  term out-of-band
+    doc 0
+      freq 1
+      pos 1101
+  term output
+    doc 0
+      freq 1
+      pos 1265
+  term outside
+    doc 0
+      freq 1
+      pos 3476
+  term parser
+    doc 0
+      freq 1
+      pos 1259
+  term part
+    doc 0
+      freq 1
+      pos 3159
+  term party,
+    doc 0
+      freq 1
+      pos 3561
+  term party.
+    doc 0
+      freq 1
+      pos 3608
+  term pass
+    doc 0
+      freq 1
+      pos 1048
+  term passed
+    doc 0
+      freq 3
+      pos 1029
+      pos 1402
+      pos 1436
+  term passing
+    doc 0
+      freq 3
+      pos 920
+      pos 1100
+      pos 3457
+  term patrick
+    doc 0
+      freq 1
+      pos 3831
+  term per
+    doc 0
+      freq 2
+      pos 3531
+      pos 3534
+  term period
+    doc 0
+      freq 1
+      pos 2592
+  term persons
+    doc 0
+      freq 1
+      pos 179
+  term placeholder
+    doc 0
+      freq 1
+      pos 1277
+  term please
+    doc 0
+      freq 1
+      pos 216
+  term policy
+    doc 0
+      freq 1
+      pos 1077
+  term policy.
+    doc 0
+      freq 2
+      pos 1385
+      pos 2340
+  term pre-eligibility
+    doc 0
+      freq 1
+      pos 982
+  term prefix
+    doc 0
+      freq 1
+      pos 1237
+  term premium
+    doc 0
+      freq 1
+      pos 987
+  term presented
+    doc 0
+      freq 3
+      pos 1186
+      pos 3122
+      pos 3133
+  term product
+    doc 0
+      freq 1
+      pos 101
+  term proper
+    doc 0
+      freq 1
+      pos 1256
+  term protected
+    doc 0
+      freq 2
+      pos 3509
+      pos 3515
+  term protocol
+    doc 0
+      freq 12
+      pos 30
+      pos 39
+      pos 898
+      pos 1202
+      pos 1211
+      pos 1587
+      pos 3197
+      pos 3357
+      pos 3374
+      pos 3417
+      pos 3676
+      pos 3692
+  term protocol",
+    doc 0
+      freq 1
+      pos 3770
+  term protocol.
+    doc 0
+      freq 1
+      pos 1233
+  term provide
+    doc 0
+      freq 2
+      pos 161
+      pos 3406
+  term provided
+    doc 0
+      freq 5
+      pos 257
+      pos 1175
+      pos 1221
+      pos 1308
+      pos 3817
+  term provides
+    doc 0
+      freq 4
+      pos 1595
+      pos 2565
+      pos 2641
+      pos 2900
+  term providing
+    doc 0
+      freq 1
+      pos 1786
+  term provisioned,
+    doc 0
+      freq 1
+      pos 1610
+  term provisioning
+    doc 0
+      freq 9
+      pos 29
+      pos 38
+      pos 897
+      pos 3196
+      pos 3356
+      pos 3373
+      pos 3675
+      pos 3691
+      pos 3769
+  term provisions
+    doc 0
+      freq 2
+      pos 200
+      pos 254
+  term public
+    doc 0
+      freq 1
+      pos 120
+  term publication
+    doc 0
+      freq 2
+      pos 127
+      pos 212
+  term purposes
+    doc 0
+      freq 2
+      pos 1311
+      pos 1504
+  term purposes.
+    doc 0
+      freq 1
+      pos 3178
+  term queens
+    doc 0
+      freq 1
+      pos 3863
+  term queried
+    doc 0
+      freq 1
+      pos 1792
+  term query
+    doc 0
+      freq 8
+      pos 407
+      pos 476
+      pos 1592
+      pos 1776
+      pos 2394
+      pos 2525
+      pos 2538
+      pos 2542
+  term random
+    doc 0
+      freq 1
+      pos 3580
+  term receive
+    doc 0
+      freq 2
+      pos 2275
+      pos 2309
+  term received
+    doc 0
+      freq 1
+      pos 119
+  term recommended",
+    doc 0
+      freq 1
+      pos 1134
+  term refer
+    doc 0
+      freq 1
+      pos 1313
+  term reference:
+    doc 0
+      freq 1
+      pos 3380
+  term references
+    doc 0
+      freq 6
+      pos 761
+      pos 790
+      pos 812
+      pos 3629
+      pos 3632
+      pos 3743
+  term registered
+    doc 0
+      freq 2
+      pos 3299
+      pos 3323
+  term registrant
+    doc 0
+      freq 2
+      pos 3304
+      pos 3328
+  term registrant:
+    doc 0
+      freq 1
+      pos 3383
+  term registration
+    doc 0
+      freq 4
+      pos 978
+      pos 990
+      pos 999
+      pos 3177
+  term registry
+    doc 0
+      freq 4
+      pos 718
+      pos 3289
+      pos 3343
+      pos 3765
+  term registry",
+    doc 0
+      freq 1
+      pos 3661
+  term registry,
+    doc 0
+      freq 1
+      pos 3359
+  term regular
+    doc 0
+      freq 1
+      pos 2407
+  term relating
+    doc 0
+      freq 1
+      pos 201
+  term relationships
+    doc 0
+      freq 1
+      pos 1226
+  term replace,
+    doc 0
+      freq 1
+      pos 2968
+  term replies
+    doc 0
+      freq 2
+      pos 1781
+      pos 2399
+  term represent
+    doc 0
+      freq 1
+      pos 3313
+  term representation
+    doc 0
+      freq 1
+      pos 3139
+  term represents
+    doc 0
+      freq 3
+      pos 110
+      pos 1197
+      pos 1206
+  term request
+    doc 0
+      freq 5
+      pos 7
+      pos 65
+      pos 932
+      pos 2214
+      pos 2909
+  term require
+    doc 0
+      freq 2
+      pos 1085
+      pos 1884
+  term required
+    doc 0
+      freq 2
+      pos 1230
+      pos 2986
+  term requirement
+    doc 0
+      freq 1
+      pos 3644
+  term requires
+    doc 0
+      freq 2
+      pos 1811
+      pos 1846
+  term rescoria,
+    doc 0
+      freq 1
+      pos 3834
+  term reserved.
+    doc 0
+      freq 1
+      pos 187
+  term respect
+    doc 0
+      freq 1
+      pos 229
+  term response
+    doc 0
+      freq 12
+      pos 1785
+      pos 1925
+      pos 2084
+      pos 2176
+      pos 2438
+      pos 2543
+      pos 2809
+      pos 2831
+      pos 2853
+      pos 3077
+      pos 3099
+      pos 3234
+  term response.
+    doc 0
+      freq 2
+      pos 1430
+      pos 2267
+  term rest
+    doc 0
+      freq 1
+      pos 3511
+  term reston,
+    doc 0
+      freq 1
+      pos 3847
+  term restrictions
+    doc 0
+      freq 1
+      pos 227
+  term result
+    doc 0
+      freq 5
+      pos 1453
+      pos 2299
+      pos 2330
+      pos 2712
+      pos 2997
+  term retrieve
+    doc 0
+      freq 4
+      pos 1599
+      pos 1613
+      pos 1622
+      pos 2224
+  term return
+    doc 0
+      freq 9
+      pos 1449
+      pos 1828
+      pos 1864
+      pos 1891
+      pos 2260
+      pos 2295
+      pos 2326
+      pos 2708
+      pos 2993
+  term returned
+    doc 0
+      freq 2
+      pos 1094
+      pos 1208
+  term review
+    doc 0
+      freq 2
+      pos 121
+      pos 217
+  term rfc
+    doc 0
+      freq 26
+      pos 146
+      pos 274
+      pos 1041
+      pos 1356
+      pos 1659
+      pos 1912
+      pos 1986
+      pos 2071
+      pos 2287
+      pos 2425
+      pos 2554
+      pos 2723
+      pos 2890
+      pos 3110
+      pos 3263
+      pos 3381
+      pos 3443
+      pos 3648
+      pos 3664
+      pos 3680
+      pos 3699
+      pos 3715
+      pos 3721
+      pos 3735
+      pos 3754
+      pos 3771
+  term rfcs
+    doc 0
+      freq 1
+      pos 3641
+  term rights
+    doc 0
+      freq 2
+      pos 186
+      pos 225
+  term roach.
+    doc 0
+      freq 1
+      pos 3837
+  term road
+    doc 0
+      freq 1
+      pos 3864
+  term rubens
+    doc 0
+      freq 1
+      pos 3827
+  term s.,
+    doc 0
+      freq 5
+      pos 3635
+      pos 3673
+      pos 3689
+      pos 3746
+      pos 3763
+  term s:
+    doc 0
+      freq 71
+      pos 1939
+      pos 1941
+      pos 1944
+      pos 1949
+      pos 1951
+      pos 1953
+      pos 1955
+      pos 1957
+      pos 1959
+      pos 1962
+      pos 1964
+      pos 1966
+      pos 1968
+      pos 1970
+      pos 1972
+      pos 1974
+      pos 1976
+      pos 2114
+      pos 2116
+      pos 2119
+      pos 2124
+      pos 2126
+      pos 2128
+      pos 2130
+      pos 2132
+      pos 2134
+      pos 2137
+      pos 2139
+      pos 2141
+      pos 2144
+      pos 2148
+      pos 2150
+      pos 2152
+      pos 2154
+      pos 2156
+      pos 2158
+      pos 2160
+      pos 2162
+      pos 2449
+      pos 2451
+      pos 2454
+      pos 2458
+      pos 2460
+      pos 2462
+      pos 2464
+      pos 2466
+      pos 2468
+      pos 2470
+      pos 2473
+      pos 2475
+      pos 2478
+      pos 2481
+      pos 2483
+      pos 2485
+      pos 2487
+      pos 2489
+      pos 2491
+      pos 2493
+      pos 2495
+      pos 2497
+      pos 2499
+      pos 2501
+      pos 2503
+      pos 2505
+      pos 2507
+      pos 2509
+      pos 2511
+      pos 2513
+      pos 2515
+      pos 2517
+      pos 2519
+  term s:</epp>
+    doc 0
+      freq 3
+      pos 1978
+      pos 2164
+      pos 2521
+  term s:<?xml
+    doc 0
+      freq 3
+      pos 1934
+      pos 2109
+      pos 2443
+  term s:<epp
+    doc 0
+      freq 3
+      pos 1937
+      pos 2112
+      pos 2447
+  term s="pendingcreate"/>
+    doc 0
+      freq 1
+      pos 2472
+  term schema
+    doc 0
+      freq 6
+      pos 650
+      pos 3120
+      pos 3138
+      pos 3174
+      pos 3183
+      pos 3320
+  term schema.
+    doc 0
+      freq 2
+      pos 3129
+      pos 3252
+  term schema;
+    doc 0
+      freq 1
+      pos 3162
+  term schemas
+    doc 0
+      freq 1
+      pos 3285
+  term scott
+    doc 0
+      freq 1
+      pos 3821
+  term secret
+    doc 0
+      freq 1
+      pos 3501
+  term section
+    doc 0
+      freq 5
+      pos 143
+      pos 248
+      pos 1683
+      pos 2416
+      pos 3336
+  term security
+    doc 0
+      freq 6
+      pos 738
+      pos 1291
+      pos 3396
+      pos 3408
+      pos 3423
+      pos 3483
+  term see
+    doc 0
+      freq 1
+      pos 3332
+  term semantics
+    doc 0
+      freq 1
+      pos 1579
+  term sensitive.
+    doc 0
+      freq 1
+      pos 1167
+  term sent
+    doc 0
+      freq 1
+      pos 1199
+  term serializer
+    doc 0
+      freq 1
+      pos 1261
+  term server
+    doc 0
+      freq 25
+      pos 74
+      pos 941
+      pos 957
+      pos 1015
+      pos 1054
+      pos 1059
+      pos 1076
+      pos 1283
+      pos 1384
+      pos 1387
+      pos 1439
+      pos 1447
+      pos 1543
+      pos 1780
+      pos 1826
+      pos 1862
+      pos 1889
+      pos 2258
+      pos 2293
+      pos 2324
+      pos 2339
+      pos 2398
+      pos 2706
+      pos 2991
+      pos 3625
+  term server-side
+    doc 0
+      freq 1
+      pos 3565
+  term server.
+    doc 0
+      freq 4
+      pos 1071
+      pos 1212
+      pos 3466
+      pos 3571
+  term serves
+    doc 0
+      freq 1
+      pos 2252
+  term services
+    doc 0
+      freq 1
+      pos 3409
+  term sharon
+    doc 0
+      freq 1
+      pos 3805
+  term should
+    doc 0
+      freq 10
+      pos 1863
+      pos 3473
+      pos 3498
+      pos 3507
+      pos 3522
+      pos 3528
+      pos 3541
+      pos 3576
+      pos 3594
+      pos 3617
+  term shown
+    doc 0
+      freq 1
+      pos 1162
+  term signatures
+    doc 0
+      freq 1
+      pos 3597
+  term signed
+    doc 0
+      freq 1
+      pos 3615
+  term similar
+    doc 0
+      freq 9
+      pos 911
+      pos 1334
+      pos 1459
+      pos 1645
+      pos 2199
+      pos 2630
+      pos 2668
+      pos 2876
+      pos 2927
+  term simple
+    doc 0
+      freq 1
+      pos 1370
+  term simplified
+    doc 0
+      freq 2
+      pos 241
+      pos 264
+  term single
+    doc 0
+      freq 1
+      pos 3524
+  term some
+    doc 0
+      freq 1
+      pos 3547
+  term space
+    doc 0
+      freq 1
+      pos 1216
+  term special
+    doc 0
+      freq 1
+      pos 3807
+  term specific
+    doc 0
+      freq 2
+      pos 70
+      pos 937
+  term specification
+    doc 0
+      freq 2
+      pos 1588
+      pos 3433
+  term specification.
+    doc 0
+      freq 1
+      pos 3316
+  term specifications
+    doc 0
+      freq 2
+      pos 1172
+      pos 3429
+  term specified
+    doc 0
+      freq 6
+      pos 1649
+      pos 2203
+      pos 2634
+      pos 2672
+      pos 2880
+      pos 2931
+  term sponsoring
+    doc 0
+      freq 3
+      pos 960
+      pos 1020
+      pos 1549
+  term sponsorship
+    doc 0
+      freq 2
+      pos 1525
+      pos 2600
+  term standalone="no"?>
+    doc 0
+      freq 5
+      pos 1738
+      pos 2360
+      pos 2446
+      pos 2748
+      pos 3020
+  term standards
+    doc 0
+      freq 21
+      pos 14
+      pos 94
+      pos 139
+      pos 270
+      pos 1037
+      pos 1352
+      pos 1655
+      pos 1908
+      pos 1982
+      pos 2067
+      pos 2283
+      pos 2421
+      pos 2550
+      pos 2719
+      pos 2886
+      pos 3106
+      pos 3259
+      pos 3378
+      pos 3439
+      pos 3731
+      pos 3876
+  term stated
+    doc 0
+      freq 1
+      pos 1169
+  term states
+    doc 0
+      freq 1
+      pos 3851
+  term status
+    doc 0
+      freq 7
+      pos 86
+      pos 152
+      pos 1624
+      pos 1789
+      pos 1831
+      pos 1867
+      pos 1894
+  term status:
+    doc 0
+      freq 2
+      pos 3377
+      pos 3391
+  term std
+    doc 0
+      freq 2
+      pos 3678
+      pos 3697
+  term steering
+    doc 0
+      freq 1
+      pos 132
+  term strong
+    doc 0
+      freq 1
+      pos 3579
+  term subject
+    doc 0
+      freq 2
+      pos 191
+      pos 2337
+  term successful,
+    doc 0
+      freq 2
+      pos 1778
+      pos 2396
+  term successfully</msg>
+    doc 0
+      freq 3
+      pos 1948
+      pos 2123
+      pos 2457
+  term suggestions
+    doc 0
+      freq 1
+      pos 3808
+  term suitable
+    doc 0
+      freq 1
+      pos 3144
+  term supplied
+    doc 0
+      freq 2
+      pos 1063
+      pos 1433
+  term supplying
+    doc 0
+      freq 1
+      pos 2237
+  term support
+    doc 0
+      freq 1
+      pos 1285
+  term supported
+    doc 0
+      freq 2
+      pos 1068
+      pos 1422
+  term supports
+    doc 0
+      freq 1
+      pos 919
+  term syntax
+    doc 0
+      freq 4
+      pos 620
+      pos 1577
+      pos 3118
+      pos 3132
+  term syntax"
+    doc 0
+      freq 1
+      pos 3335
+  term table
+    doc 0
+      freq 1
+      pos 280
+  term tags
+    doc 0
+      freq 1
+      pos 3156
+  term targetnamespace="urn:ietf:params:xml:ns:allocationtoken-1.0"
+    doc 0
+      freq 1
+      pos 3191
+  term task
+    doc 0
+      freq 2
+      pos 2
+      pos 106
+  term text
+    doc 0
+      freq 1
+      pos 244
+  term that
+    doc 0
+      freq 10
+      pos 60
+      pos 927
+      pos 1027
+      pos 1105
+      pos 1288
+      pos 2251
+      pos 2645
+      pos 2904
+      pos 3613
+      pos 3809
+  term the
+    doc 0
+      freq 213
+      pos 27
+      pos 52
+      pos 66
+      pos 73
+      pos 78
+      pos 103
+      pos 111
+      pos 114
+      pos 129
+      pos 150
+      pos 178
+      pos 182
+      pos 196
+      pos 209
+      pos 251
+      pos 263
+      pos 895
+      pos 913
+      pos 933
+      pos 940
+      pos 945
+      pos 959
+      pos 967
+      pos 1014
+      pos 1053
+      pos 1058
+      pos 1062
+      pos 1070
+      pos 1086
+      pos 1089
+      pos 1119
+      pos 1183
+      pos 1218
+      pos 1232
+      pos 1234
+      pos 1242
+      pos 1266
+      pos 1269
+      pos 1280
+      pos 1282
+      pos 1290
+      pos 1295
+      pos 1300
+      pos 1305
+      pos 1319
+      pos 1336
+      pos 1365
+      pos 1374
+      pos 1378
+      pos 1386
+      pos 1390
+      pos 1399
+      pos 1404
+      pos 1408
+      pos 1411
+      pos 1413
+      pos 1421
+      pos 1428
+      pos 1432
+      pos 1438
+      pos 1444
+      pos 1446
+      pos 1465
+      pos 1479
+      pos 1489
+      pos 1493
+      pos 1509
+      pos 1516
+      pos 1524
+      pos 1527
+      pos 1529
+      pos 1536
+      pos 1542
+      pos 1547
+      pos 1552
+      pos 1575
+      pos 1584
+      pos 1637
+      pos 1647
+      pos 1671
+      pos 1695
+      pos 1698
+      pos 1709
+      pos 1713
+      pos 1721
+      pos 1726
+      pos 1730
+      pos 1775
+      pos 1779
+      pos 1787
+      pos 1791
+      pos 1796
+      pos 1802
+      pos 1816
+      pos 1822
+      pos 1825
+      pos 1829
+      pos 1835
+      pos 1851
+      pos 1858
+      pos 1861
+      pos 1865
+      pos 1871
+      pos 1888
+      pos 1892
+      pos 1898
+      pos 1918
+      pos 1931
+      pos 1992
+      pos 2000
+      pos 2004
+      pos 2020
+      pos 2077
+      pos 2090
+      pos 2094
+      pos 2098
+      pos 2173
+      pos 2191
+      pos 2201
+      pos 2206
+      pos 2225
+      pos 2232
+      pos 2238
+      pos 2242
+      pos 2244
+      pos 2257
+      pos 2261
+      pos 2265
+      pos 2269
+      pos 2276
+      pos 2279
+      pos 2304
+      pos 2310
+      pos 2321
+      pos 2323
+      pos 2334
+      pos 2341
+      pos 2349
+      pos 2353
+      pos 2393
+      pos 2397
+      pos 2406
+      pos 2410
+      pos 2431
+      pos 2440
+      pos 2535
+      pos 2590
+      pos 2622
+      pos 2632
+      pos 2637
+      pos 2659
+      pos 2670
+      pos 2675
+      pos 2684
+      pos 2693
+      pos 2696
+      pos 2703
+      pos 2705
+      pos 2729
+      pos 2806
+      pos 2825
+      pos 2847
+      pos 2868
+      pos 2878
+      pos 2896
+      pos 2910
+      pos 2918
+      pos 2929
+      pos 2934
+      pos 2943
+      pos 2952
+      pos 2954
+      pos 2958
+      pos 2969
+      pos 2974
+      pos 2979
+      pos 2988
+      pos 2990
+      pos 3001
+      pos 3010
+      pos 3014
+      pos 3074
+      pos 3093
+      pos 3124
+      pos 3130
+      pos 3141
+      pos 3152
+      pos 3161
+      pos 3168
+      pos 3173
+      pos 3294
+      pos 3317
+      pos 3333
+      pos 3344
+      pos 3351
+      pos 3354
+      pos 3371
+      pos 3398
+      pos 3422
+      pos 3449
+      pos 3456
+      pos 3467
+      pos 3470
+      pos 3480
+      pos 3486
+      pos 3504
+      pos 3552
+      pos 3570
+      pos 3767
+      pos 3779
+      pos 3784
+      pos 3791
+      pos 3794
+  term then
+    doc 0
+      freq 2
+      pos 1824
+      pos 1860
+  term there
+    doc 0
+      freq 1
+      pos 2314
+  term these
+    doc 0
+      freq 2
+      pos 218
+      pos 3427
+  term they
+    doc 0
+      freq 3
+      pos 222
+      pos 1156
+      pos 3163
+  term third
+    doc 0
+      freq 2
+      pos 3560
+      pos 3607
+  term this
+    doc 0
+      freq 36
+      pos 33
+      pos 88
+      pos 90
+      pos 97
+      pos 154
+      pos 188
+      pos 214
+      pos 231
+      pos 237
+      pos 314
+      pos 885
+      pos 901
+      pos 1117
+      pos 1139
+      pos 1177
+      pos 1325
+      pos 1630
+      pos 1665
+      pos 2165
+      pos 2184
+      pos 2527
+      pos 2615
+      pos 2798
+      pos 2817
+      pos 2839
+      pos 2861
+      pos 3066
+      pos 3085
+      pos 3275
+      pos 3338
+      pos 3402
+      pos 3432
+      pos 3478
+      pos 3788
+      pos 3799
+      pos 3814
+  term those
+    doc 0
+      freq 2
+      pos 1343
+      pos 3411
+  term three
+    doc 0
+      freq 1
+      pos 1596
+  term tlds:
+    doc 0
+      freq 1
+      pos 3386
+  term to
+    doc 0
+      freq 86
+      pos 64
+      pos 160
+      pos 192
+      pos 202
+      pos 230
+      pos 907
+      pos 912
+      pos 931
+      pos 1052
+      pos 1075
+      pos 1095
+      pos 1102
+      pos 1142
+      pos 1189
+      pos 1223
+      pos 1262
+      pos 1314
+      pos 1330
+      pos 1335
+      pos 1383
+      pos 1396
+      pos 1406
+      pos 1437
+      pos 1443
+      pos 1460
+      pos 1475
+      pos 1514
+      pos 1544
+      pos 1598
+      pos 1603
+      pos 1612
+      pos 1621
+      pos 1635
+      pos 1646
+      pos 1669
+      pos 1703
+      pos 1821
+      pos 1857
+      pos 2172
+      pos 2189
+      pos 2200
+      pos 2213
+      pos 2256
+      pos 2259
+      pos 2274
+      pos 2308
+      pos 2338
+      pos 2534
+      pos 2568
+      pos 2572
+      pos 2580
+      pos 2588
+      pos 2597
+      pos 2604
+      pos 2620
+      pos 2631
+      pos 2649
+      pos 2658
+      pos 2669
+      pos 2686
+      pos 2689
+      pos 2702
+      pos 2736
+      pos 2805
+      pos 2824
+      pos 2846
+      pos 2866
+      pos 2877
+      pos 2908
+      pos 2917
+      pos 2928
+      pos 2945
+      pos 2948
+      pos 3008
+      pos 3073
+      pos 3092
+      pos 3166
+      pos 3210
+      pos 3279
+      pos 3287
+      pos 3350
+      pos 3431
+      pos 3598
+      pos 3623
+      pos 3642
+      pos 3782
+  term to,
+    doc 0
+      freq 1
+      pos 2964
+  term token
+    doc 0
+      freq 65
+      pos 24
+      pos 46
+      pos 54
+      pos 277
+      pos 357
+      pos 648
+      pos 923
+      pos 972
+      pos 1026
+      pos 1044
+      pos 1051
+      pos 1065
+      pos 1091
+      pos 1271
+      pos 1286
+      pos 1359
+      pos 1364
+      pos 1367
+      pos 1380
+      pos 1392
+      pos 1401
+      pos 1435
+      pos 1491
+      pos 1511
+      pos 1531
+      pos 1662
+      pos 1700
+      pos 1732
+      pos 1799
+      pos 1814
+      pos 1818
+      pos 1849
+      pos 1853
+      pos 1915
+      pos 1989
+      pos 2022
+      pos 2074
+      pos 2100
+      pos 2146
+      pos 2227
+      pos 2290
+      pos 2318
+      pos 2428
+      pos 2557
+      pos 2698
+      pos 2726
+      pos 2893
+      pos 2960
+      pos 2981
+      pos 3113
+      pos 3127
+      pos 3181
+      pos 3200
+      pos 3227
+      pos 3266
+      pos 3368
+      pos 3446
+      pos 3472
+      pos 3497
+      pos 3521
+      pos 3540
+      pos 3575
+      pos 3593
+      pos 3612
+      pos 3738
+  term token,
+    doc 0
+      freq 8
+      pos 984
+      pos 996
+      pos 1005
+      pos 1679
+      pos 1887
+      pos 2278
+      pos 2312
+      pos 3554
+  term token.
+    doc 0
+      freq 3
+      pos 1088
+      pos 1697
+      pos 3213
+  term token:
+    doc 0
+      freq 3
+      pos 2744
+      pos 3016
+      pos 3493
+  term tokens
+    doc 0
+      freq 1
+      pos 3460
+  term track
+    doc 0
+      freq 20
+      pos 15
+      pos 95
+      pos 271
+      pos 1038
+      pos 1353
+      pos 1656
+      pos 1909
+      pos 1983
+      pos 2068
+      pos 2284
+      pos 2422
+      pos 2551
+      pos 2720
+      pos 2887
+      pos 3107
+      pos 3260
+      pos 3379
+      pos 3440
+      pos 3732
+      pos 3877
+  term tran
+    doc 0
+      freq 1
+      pos 3803
+  term transfer
+    doc 0
+      freq 4
+      pos 1032
+      pos 1477
+      pos 2911
+      pos 2949
+  term transferring
+    doc 0
+      freq 1
+      pos 1523
+  term transform
+    doc 0
+      freq 10
+      pos 80
+      pos 493
+      pos 947
+      pos 1080
+      pos 1111
+      pos 2562
+      pos 2569
+      pos 2643
+      pos 2902
+      pos 3230
+  term transit.
+    doc 0
+      freq 1
+      pos 3517
+  term trung
+    doc 0
+      freq 1
+      pos 3802
+  term trust
+    doc 0
+      freq 2
+      pos 176
+      pos 252
+  term trust's
+    doc 0
+      freq 1
+      pos 198
+  term trusted
+    doc 0
+      freq 2
+      pos 3559
+      pos 3606
+  term type.
+    doc 0
+      freq 1
+      pos 1373
+  term type="admin">sh8013</domain:contact>
+    doc 0
+      freq 2
+      pos 2477
+      pos 2765
+  term type="allocationtoken:allocationtokentype"
+    doc 0
+      freq 1
+      pos 3238
+  term type="tech">sh8013</domain:contact>
+    doc 0
+      freq 2
+      pos 2480
+      pos 2768
+  term unavailable
+    doc 0
+      freq 1
+      pos 1869
+  term unique
+    doc 0
+      freq 1
+      pos 3530
+  term unit="y">1</domain:period>
+    doc 0
+      freq 1
+      pos 3036
+  term united
+    doc 0
+      freq 1
+      pos 3850
+  term unless
+    doc 0
+      freq 1
+      pos 1168
+  term unsigned
+    doc 0
+      freq 1
+      pos 3588
+  term up
+    doc 0
+      freq 2
+      pos 1074
+      pos 1382
+  term uppercase
+    doc 0
+      freq 1
+      pos 3711
+  term uri
+    doc 0
+      freq 1
+      pos 3176
+  term uri:
+    doc 0
+      freq 4
+      pos 3302
+      pos 3326
+      pos 3856
+      pos 3871
+  term uris
+    doc 0
+      freq 1
+      pos 3310
+  term urn:ietf:params:xml:ns:allocationtoken-1.0
+    doc 0
+      freq 1
+      pos 3303
+  term urn:ietf:params:xml:schema:allocationtoken-1.0
+    doc 0
+      freq 1
+      pos 3327
+  term urns
+    doc 0
+      freq 1
+      pos 3278
+  term use
+    doc 0
+      freq 4
+      pos 968
+      pos 3489
+      pos 3577
+      pos 3639
+  term use,
+    doc 0
+      freq 1
+      pos 3525
+  term used
+    doc 0
+      freq 12
+      pos 56
+      pos 312
+      pos 1115
+      pos 1240
+      pos 1274
+      pos 1417
+      pos 1501
+      pos 1513
+      pos 3165
+      pos 3206
+      pos 3228
+      pos 3419
+  term uses
+    doc 0
+      freq 2
+      pos 1106
+      pos 3277
+  term using
+    doc 0
+      freq 7
+      pos 75
+      pos 942
+      pos 1694
+      pos 1725
+      pos 1930
+      pos 2093
+      pos 2439
+  term v1.0
+    doc 0
+      freq 1
+      pos 3198
+  term va
+    doc 0
+      freq 1
+      pos 3848
+  term validated
+    doc 0
+      freq 1
+      pos 1540
+  term validation
+    doc 0
+      freq 2
+      pos 3147
+      pos 3626
+  term validation,
+    doc 0
+      freq 1
+      pos 1056
+  term validity
+    doc 0
+      freq 1
+      pos 2591
+  term value
+    doc 0
+      freq 4
+      pos 1272
+      pos 1278
+      pos 1559
+      pos 3581
+  term value,
+    doc 0
+      freq 1
+      pos 1303
+  term value="1"
+    doc 0
+      freq 1
+      pos 3245
+  term values
+    doc 0
+      freq 1
+      pos 1287
+  term values,
+    doc 0
+      freq 1
+      pos 1298
+  term verisign,
+    doc 0
+      freq 2
+      pos 11
+      pos 3842
+  term version
+    doc 0
+      freq 1
+      pos 892
+  term version="1.0"
+    doc 0
+      freq 9
+      pos 1736
+      pos 1935
+      pos 2025
+      pos 2110
+      pos 2358
+      pos 2444
+      pos 2746
+      pos 3018
+      pos 3186
+  term versions
+    doc 0
+      freq 1
+      pos 3797
+  term vic
+    doc 0
+      freq 1
+      pos 3866
+  term vs
+    doc 0
+      freq 1
+      pos 3712
+  term warranty
+    doc 0
+      freq 1
+      pos 259
+  term was
+    doc 0
+      freq 2
+      pos 1777
+      pos 2395
+  term way
+    doc 0
+      freq 1
+      pos 3846
+  term ways.
+    doc 0
+      freq 1
+      pos 1508
+  term well
+    doc 0
+      freq 1
+      pos 1426
+  term well.
+    doc 0
+      freq 1
+      pos 3435
+  term were
+    doc 0
+      freq 1
+      pos 3816
+  term what
+    doc 0
+      freq 1
+      pos 1461
+  term when
+    doc 0
+      freq 2
+      pos 955
+      pos 1484
+  term when,
+    doc 0
+      freq 2
+      pos 1152
+      pos 1155
+  term where
+    doc 0
+      freq 2
+      pos 1801
+      pos 2097
+  term which
+    doc 0
+      freq 3
+      pos 903
+      pos 1078
+      pos 1083
+  term white
+    doc 0
+      freq 1
+      pos 1215
+  term wish
+    doc 0
+      freq 1
+      pos 3781
+  term with
+    doc 0
+      freq 22
+      pos 228
+      pos 1030
+      pos 1108
+      pos 1473
+      pos 1558
+      pos 1616
+      pos 1676
+      pos 1729
+      pos 1782
+      pos 1999
+      pos 2217
+      pos 2231
+      pos 2320
+      pos 2348
+      pos 2400
+      pos 2405
+      pos 2608
+      pos 2741
+      pos 2957
+      pos 3013
+      pos 3546
+      pos 3563
+  term without
+    doc 0
+      freq 1
+      pos 258
+  term wodjenski.
+    doc 0
+      freq 1
+      pos 3806
+  term words
+    doc 0
+      freq 2
+      pos 1121
+      pos 3637
+  term words",
+    doc 0
+      freq 1
+      pos 3718
+  term xml
+    doc 0
+      freq 15
+      pos 690
+      pos 1164
+      pos 1171
+      pos 1235
+      pos 1258
+      pos 1267
+      pos 1371
+      pos 3150
+      pos 3273
+      pos 3281
+      pos 3284
+      pos 3315
+      pos 3319
+      pos 3616
+      pos 3660
+  term xml:
+    doc 0
+      freq 2
+      pos 3307
+      pos 3331
+  term xmlns:allocationtoken=
+    doc 0
+      freq 7
+      pos 1563
+      pos 1760
+      pos 2050
+      pos 2382
+      pos 2502
+      pos 2784
+      pos 3052
+  term xmlns:allocationtoken="urn:ietf:params:xml:ns:allocationtoken-1.0"
+    doc 0
+      freq 1
+      pos 3190
+  term xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+    doc 0
+      freq 8
+      pos 1748
+      pos 1956
+      pos 2036
+      pos 2131
+      pos 2370
+      pos 2465
+      pos 2758
+      pos 3031
+  term xmlns="http://www.w3.org/2001/xmlschema"
+    doc 0
+      freq 1
+      pos 3189
+  term xmlns="urn:ietf:params:xml:ns:epp-1.0">
+    doc 0
+      freq 8
+      pos 1740
+      pos 1938
+      pos 2028
+      pos 2113
+      pos 2362
+      pos 2448
+      pos 2750
+      pos 3022
+  term your
+    doc 0
+      freq 1
+      pos 224
+field name
+  term rfc8495
+    doc 0
+      freq 1
+      pos 0
+  term txt
+    doc 0
+      freq 1
+      pos 1
+END
+checksum 00000000001543244877
+table of contents, size: 4
+  filename: _24v.fld
+    start: 24
+    end: 32576
+  filename: _24v.inf
+    start: 32600
+    end: 33376
+  filename: _24v.len
+    start: 33400
+    end: 33549
+  filename: _24v.pst
+    start: 33573
+    end: 125801
+table of contents begins at offset: 0000000000000125801

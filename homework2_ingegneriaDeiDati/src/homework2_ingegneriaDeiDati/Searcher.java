@@ -54,18 +54,20 @@ public class Searcher {
 
 			// costruisci la query
 			for (String parola : parole) {
-				builder.add(new Term(field, parola));
+				builder.add(new Term(field, parola.toLowerCase()));
 			}
 
 			PhraseQuery phraseQuery = builder.build();
 			// Esegui la query
 			TopDocs topDocs = searcher.search(phraseQuery, 10); // Cerca i primi 10 documenti corrispondenti
-
+			if(topDocs.scoreDocs.length == 0) {
+				System.out.println("Nessun risultato");
+			}
 			// Stampa i risultati
 			for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
 				int docId = scoreDoc.doc;
 				System.out.println("Documento corrispondente con punteggio: " + scoreDoc.score);
-				System.out.println("Contenuto del documento: " + searcher.doc(docId).get("content"));
+				System.out.println("Nome del documento: " + searcher.doc(docId).get("name"));
 			}
 
 			System.out.println("Vuoi inserire un'altra query? y/n");
