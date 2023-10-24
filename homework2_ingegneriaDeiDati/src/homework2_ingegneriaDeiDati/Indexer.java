@@ -32,8 +32,7 @@ public class Indexer {
 	        Directory indexDirectory = FSDirectory.open(Paths.get(indexPath));
 	        
 	        Map<String, Analyzer> perFieldAnalyzers = new HashMap<>();
-	        CharArraySet stopWords = new CharArraySet(Arrays.asList(".txt"), 
-	        true);
+	        CharArraySet stopWords = new CharArraySet(Arrays.asList(".txt"), true);
 	        perFieldAnalyzers.put("name", new StandardAnalyzer(stopWords));
 	        perFieldAnalyzers.put("content", new WhitespaceAnalyzer());
 	        Analyzer analyzer = new PerFieldAnalyzerWrapper(new EnglishAnalyzer(), 
